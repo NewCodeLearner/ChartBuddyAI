@@ -32,3 +32,8 @@ from PIL import Image
 payloads = DataFrame.from_records({"image_url": sample_image_urls})
 payloads["type"] = "stockchart"
 print(payloads)
+
+# 4. Create PIL (Python Imaging Library) image from each of the local URLs.
+# PIL provides a wide range of functions for image processing, such as resizing, cropping, rotating, and applying filters.
+images =  list(map(lambda imgurl : Image.open(imgurl),payloads['image_url']))
+print(images)
