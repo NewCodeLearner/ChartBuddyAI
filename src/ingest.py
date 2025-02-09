@@ -56,7 +56,7 @@ def resize_image(image_url):
 
 def convert_image_to_base64(pil_image):
     image_data = BytesIO()
-    pil_image.save(image_data,format = "JPEG")
+    pil_image.save(image_data,format = "JPG")
     base64_string = base64.b64encode(image_data.getvalue()).decode("utf-8")
     return base64_string
 
@@ -64,4 +64,20 @@ resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
 base64_strings = list(map(lambda el : convert_image_to_base64(el),resized_images))
 payloads['base64'] = base64_strings
 print(payloads)
+
+#6. Import the model and tokenizer then run 
+# all the images through it to create the embeddings.
+from transformers import AutoImageProcessor, ResNetForImageClassification
+
+processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
+model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
+
+inputs = processor(~
+    images,
+    return_tensors = "pt",
+)
+
+outputs = model(**inputs)
+embeddings = outputs.logits
+print(embeddings)
 
