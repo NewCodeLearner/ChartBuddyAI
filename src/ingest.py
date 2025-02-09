@@ -7,9 +7,9 @@ import torch
 
 # 1. Create Qdrant Client
 
-client = QdrantClient(host = 'localhost',port=6333)
+qclient = QdrantClient(host = 'localhost',port=6333)
 
-#print(client)
+print(qclient)
 #<qdrant_client.qdrant_client.QdrantClient object at 0x000001DDE0B69430>
 
 # 2. Fetch All images in the dataset
@@ -56,14 +56,15 @@ def resize_image(image_url):
 
 def convert_image_to_base64(pil_image):
     image_data = BytesIO()
-    pil_image.save(image_data,format = "JPG")
+    pil_image.save(image_data,format = "JPEG")
     base64_string = base64.b64encode(image_data.getvalue()).decode("utf-8")
     return base64_string
 
 resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
 base64_strings = list(map(lambda el : convert_image_to_base64(el),resized_images))
 payloads['base64'] = base64_strings
-print(payloads)
+print('payloads created')
+#print(payloads)
 
 #6. Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
@@ -80,4 +81,23 @@ inputs = processor(~
 outputs = model(**inputs)
 embeddings = outputs.logits
 print(embeddings)
+
+embeddings_length = len(embeddings[0])
+
+
+# 8. Create a collection called "stock_charts_images"
+# This is the collection that our vector and metadata will be stored.
+from qdrant_client.models import VectorParams,Distance
+
+collection_name = "stock_charts_images"
+collection = qclient.recreate_collection(
+    collection_name = collection_name,
+    vector_config = VectorParams(
+        size = embeddings_length,
+        distance = Distance.COSINE
+    )
+)
+print(collection)
+
+
 
