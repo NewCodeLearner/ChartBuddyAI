@@ -50,11 +50,12 @@ target_width = 256
 
 def resize_image(image_url):
     pil_image = Image.open(image_url)
+    pil_image = pil_image.convert("RGB")
     print(pil_image.mode)
-    image_aspect_ratio = pil_image.width / pil_image.height
-    resized_pil_image = pil_image.resize(
-        [target_width, math.floor(target_width * image_aspect_ratio)]
-    )
+    resized_pil_image = pil_image.resize((512, 512))
+    print("orig: " , pil_image.size)
+    print("resize: ",resized_pil_image.size)
+
     return resized_pil_image
 
 def convert_image_to_base64(pil_image):
@@ -85,8 +86,8 @@ from transformers import AutoImageProcessor, ResNetForImageClassification
 processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
 model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
 
-inputs = processor(~
-    images,
+inputs = processor(
+    resized_images,
     return_tensors = "pt",
 )
 
@@ -104,7 +105,7 @@ from qdrant_client.models import VectorParams,Distance
 collection_name = "stock_charts_images"
 collection = qclient.recreate_collection(
     collection_name = collection_name,
-    vector_config = VectorParams(
+    vectors_config = VectorParams(
         size = embeddings_length,
         distance = Distance.COSINE
     )
