@@ -7,9 +7,9 @@ import torch
 
 # 1. Create Qdrant Client
 
-qclient = QdrantClient(host = 'localhost',port=6333)
+qclient = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
 
-print(qclient)
+print(qclient.info())
 #<qdrant_client.qdrant_client.QdrantClient object at 0x000001DDE0B69430>
 
 # 2. Fetch All images in the dataset
