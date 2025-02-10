@@ -103,7 +103,7 @@ embeddings_length = len(embeddings[0])
 from qdrant_client.models import VectorParams,Distance
 
 collection_name = "stock_charts_images"
-collection = qclient.recreate_collection(
+collection = qclient.collection_exists(
     collection_name = collection_name,
     vectors_config = VectorParams(
         size = embeddings_length,
@@ -111,6 +111,34 @@ collection = qclient.recreate_collection(
     )
 )
 print(collection)
+
+# 9. The Metadata must be uploaded as an array of objects so
+# convert the dataframe to an array of objects before continuing.
+payload_dicts = payloads.to_dict(
+    orient = "records"
+)
+print(payload_dicts)
+
+# 10. Create the record. This is the payload (metadata) and the vector embeddings
+# side by side. Because we have two arrays of data
+from qdrant_client import models
+
+records = [
+    model.Record(
+        id = idx,
+        payload = payload_dicts[idx],
+        vector = embeddings[idx]
+    )
+    for idx,_ in enumerate(payload_dicts)
+]
+
+# 11. Upload all the records to our collection.
+qclient.upload_records(
+    collection_name = collection_name,
+    records = records
+)
+
+
 
 
 
