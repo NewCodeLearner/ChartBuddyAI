@@ -62,9 +62,8 @@ def convert_image_to_base64(pil_image):
     image_data = BytesIO()
     # Convert the image.mode because the previous modes aren't supported for jpeg
     # This will convert source images from .jpg to .png format into single .JPEG format.
-    if pil_image.mode == "JPEG":
-        pil_image.save(image_data, format='JPEG', quality=95)
-    elif pil_image.mode in ["RGBA", "P"]:
+
+    if pil_image.mode in ["RGBA", "P", "L"]:
         pil_image = pil_image.convert("RGB")
         pil_image.save(image_data, format='JPEG', quality=95)
     print(pil_image.mode)
@@ -131,7 +130,7 @@ print(payload_dicts)
 from qdrant_client import models
 
 records = [
-    model.Record(
+    models.Record(
         id = idx,
         payload = payload_dicts[idx],
         vector = embeddings[idx]
