@@ -51,7 +51,7 @@ target_width = 256
 def resize_image(image_url):
     pil_image = Image.open(image_url)
     pil_image = pil_image.convert("RGB")
-    print(pil_image.mode)
+#    print(pil_image.mode)
     resized_pil_image = pil_image.resize((512, 512))
     print("orig: " , pil_image.size)
     print("resize: ",resized_pil_image.size)
@@ -93,7 +93,7 @@ inputs = processor(
 
 outputs = model(**inputs)
 embeddings = outputs.logits
-print(embeddings)
+#print(embeddings)
 
 embeddings_length = len(embeddings[0])
 
@@ -103,14 +103,21 @@ embeddings_length = len(embeddings[0])
 from qdrant_client.models import VectorParams,Distance
 
 collection_name = "stock_charts_images"
-collection = qclient.collection_exists(
-    collection_name = collection_name,
-    vectors_config = VectorParams(
-        size = embeddings_length,
-        distance = Distance.COSINE
+
+# Check if collection already exists, if yes then pass else create new.
+collection_exist = qclient.collection_exists(collection_name=collection_name)
+if collection_exist:
+    pass
+else :
+    collection = qclient.create_collection(
+        collection_name = collection_name,
+        vectors_config = VectorParams(
+            size = embeddings_length,
+            distance = Distance.COSINE
+        )
     )
-)
-print(collection)
+    print(collection)
+
 
 # 9. The Metadata must be uploaded as an array of objects so
 # convert the dataframe to an array of objects before continuing.
@@ -137,6 +144,7 @@ qclient.upload_records(
     collection_name = collection_name,
     records = records
 )
+print('Records Inserted in Qdrant DB')
 
 
 
