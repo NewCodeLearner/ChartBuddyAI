@@ -38,6 +38,8 @@ print(payloads)
 images =  list(map(lambda imgurl : Image.open(imgurl),payloads['image_url']))
 #print(images)
 
+
+
 # 5. Create Base64 string representations to store alongside
 # metadata. This will allow us to preview the images.
 from io import BytesIO
@@ -48,6 +50,7 @@ target_width = 256
 
 def resize_image(image_url):
     pil_image = Image.open(image_url)
+    print(pil_image.mode)
     image_aspect_ratio = pil_image.width / pil_image.height
     resized_pil_image = pil_image.resize(
         [target_width, math.floor(target_width * image_aspect_ratio)]
@@ -56,7 +59,15 @@ def resize_image(image_url):
 
 def convert_image_to_base64(pil_image):
     image_data = BytesIO()
-    pil_image.save(image_data,format = "JPEG")
+    # Convert the image.mode because the previous modes aren't supported for jpeg
+    # This will convert source images from .jpg to .png format into single .JPEG format.
+    if pil_image.mode == "JPEG":
+        pil_image.save(image_data, format='JPEG', quality=95)
+    elif pil_image.mode in ["RGBA", "P"]:
+        pil_image = pil_image.convert("RGB")
+        pil_image.save(image_data, format='JPEG', quality=95)
+    print(pil_image.mode)
+    #pil_image.save(image_data,format = "JPEG")
     base64_string = base64.b64encode(image_data.getvalue()).decode("utf-8")
     return base64_string
 
@@ -64,6 +75,7 @@ resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
 base64_strings = list(map(lambda el : convert_image_to_base64(el),resized_images))
 payloads['base64'] = base64_strings
 print('payloads created')
+
 #print(payloads)
 
 #6. Import the model and tokenizer then run 
