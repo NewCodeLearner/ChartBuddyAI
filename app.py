@@ -38,3 +38,15 @@ def get_initial_records():
     )
     return records
 
+# 6. This function will be called , If the user selected a record for which they want to see similar items.
+def get_similar_records():
+    client = get_client()
+
+    if st.session_state.selected_record is not None:
+        return client.recommend(
+        collection_name = collection_name,
+        positive =  [st.session_state.selected_record.id],
+        limit =12
+    )
+
+
