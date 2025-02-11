@@ -79,11 +79,13 @@ column = st.columns(3)
 for idx, record in enumerate(records):
     col_idx = idx % 3
     image_bytes = get_bytes_from_base64(record.payload['base64'])
-    with column(col_idx):
+    print(image_bytes)
+    with column[col_idx]:
         st.image(
             image = image_bytes
         )
         st.button(
+
             label = "Find similar charts",
             key = record.id,
             on_click = set_selected_record, # call set the selected fn 
