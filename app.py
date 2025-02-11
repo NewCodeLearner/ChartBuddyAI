@@ -71,6 +71,25 @@ if st.session_state.selected_record:
     )
     st.divider()
 
+# 10. Setup the grid to render images.
+column = st.columns(3)
+
+# 11. Iterate over all the fetched records from DB
+#     and render a preview of each image using base64 string.
+for idx, record in enumerate(records):
+    col_idx = idx % 3
+    image_bytes = get_bytes_from_base64(record.payload['base64'])
+    with column(col_idx):
+        st.image(
+            image = image_bytes
+        )
+        st.button(
+            label = "Find similar charts",
+            key = record.id,
+            on_click = set_selected_record, # call set the selected fn 
+            args = [record]
+        )    
+
 
 
 
