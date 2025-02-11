@@ -49,4 +49,29 @@ def get_similar_records():
         limit =12
     )
 
+# 7. Define a convenience function to convert base64 back into bytes
+#    that can be used by Steamlit to render images.
+def get_bytes_from_base64(base64_string):
+    return BytesIO(base64.b64decode(base64_string))
+
+# 8. Get the records. This function will be re-called multiple times 
+#    throughout the lifecycle of our app. We fetch the original record
+#    if there is nothing selected- otherwise fetch recommendations.
+records = get_similar_records(
+) if st.session_state.selected_record is not None else get_initial_records()
+
+# 9. If we have a selected record, then show that image at the top of the screen
+if st.session_state.selected_record:
+    image_bytes = get_bytes_from_base64(
+        st.session_state.selected_record.payload["base64"]
+    )
+    st.header("Stock Charts Similar to:")
+    st.image(
+        image= image_bytes
+    )
+    st.divider()
+
+
+
+
 
