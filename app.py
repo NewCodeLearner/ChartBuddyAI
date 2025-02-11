@@ -15,7 +15,7 @@ if 'selected_record' not in st.session_state:
 def set_selected_record(new_record):
     st.session_state.selected_record = new_record
 
-# This decorator will cache the qdrant client rather than creating new one each time app is refreshed.
+# 4. This decorator will cache the qdrant client rather than creating new one each time app is refreshed.
 @st.cache_resource
 def get_client():
     # Uncomment below if using Qdrant managed cloud server to host DB.
@@ -26,3 +26,15 @@ def get_client():
 
     # To use the locally setup Qdrant DB using Docker.
     return QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
+
+# 5. When the app first starts, lets show the user sample images.
+def get_initial_records():
+    client = get_client()
+
+    records, _ = client.scroll(
+        collection_name = collection_name,
+        with_vectors = False,
+        limit = 12
+    )
+    return records
+
