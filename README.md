@@ -26,3 +26,10 @@ pip install -r requirements.txt
 
 3.Run the Application: Start the Steamlit server:
 streamlit run app.py
+
+4.Upload or Select a Stock Chart Image:
+Use the provided web interface to upload a stock chart image or choose one from the existing collection.
+
+5.View Similar Chart Patterns:
+ChartBuddyAI processes your image, generates its embedding, and displays similar stock charts from the database. For enhanced functionality, you can also trigger an agent that fetches real-time chart images from external sources.
+
