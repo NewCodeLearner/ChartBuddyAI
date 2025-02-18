@@ -2,11 +2,15 @@ from qdrant_client import QdrantClient
 from io import BytesIO
 import streamlit as st
 import base64
+from src.image_utils import upload_and_display_image, get_image_vector
 
 
 # 1. Define the qdrant collection name that we created
 collection_name = "stock_charts_images"
 st.set_page_config(layout="wide") # Expands content to the full screen width
+
+# Upload image and display it
+image = upload_and_display_image()
 
 # 2. Setup a state variable that we'll re-use throughout the app.
 if 'selected_record' not in st.session_state:
