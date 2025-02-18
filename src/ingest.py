@@ -31,7 +31,7 @@ from PIL import Image
 
 payloads = DataFrame.from_records({"image_url": sample_image_urls})
 payloads["type"] = "stockchart"
-print(payloads)
+#print(payloads)
 
 # 4. Create PIL (Python Imaging Library) image from each of the local URLs.
 # PIL provides a wide range of functions for image processing, such as resizing, cropping, rotating, and applying filters.
@@ -53,8 +53,8 @@ def resize_image(image_url):
     pil_image = pil_image.convert("RGB")
 #    print(pil_image.mode)
     resized_pil_image = pil_image.resize((512, 512))
-    print("orig: " , pil_image.size)
-    print("resize: ",resized_pil_image.size)
+#    print("orig: " , pil_image.size)
+#    print("resize: ",resized_pil_image.size)
 
     return resized_pil_image
 
@@ -110,7 +110,7 @@ else :
             distance = Distance.COSINE
         )
     )
-    print(collection)
+#    print(collection)
 
 
 # 9. The Metadata must be uploaded as an array of objects so
@@ -118,7 +118,7 @@ else :
 payload_dicts = payloads.to_dict(
     orient = "records"
 )
-print(payload_dicts)
+#print(payload_dicts)
 
 # 10. Create the record. This is the payload (metadata) and the vector embeddings
 # side by side. Because we have two arrays of data
