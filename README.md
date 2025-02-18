@@ -26,3 +26,19 @@ pip install -r requirements.txt
 
 3.Run the Application: Start the Steamlit server:
 streamlit run app.py
+
+4.Upload or Select a Stock Chart Image:
+Use the provided web interface to upload a stock chart image or choose one from the existing collection.
+
+5.View Similar Chart Patterns:
+ChartBuddyAI processes your image, generates its embedding, and displays similar stock charts from the database. For enhanced functionality, you can also trigger an agent that fetches real-time chart images from external sources.
+
+
+## Technologies Used:
+1.Python: The main language for backend development.
+2.Streamlit: Web framework for building the user interface.
+3.CLIP: Utilized for generating image embeddings and enabling similarity searches.
+4.Vector Database: Integrated solution (such as Weaviate, Chroma, Pinecone, or Faiss) for storing and querying image embeddings.
+5.Celery (Optional): For asynchronous processing of tasks, such as real-time data fetching.
+6.HTML/CSS/JavaScript: For creating a responsive and user-friendly front-end interface.
+
