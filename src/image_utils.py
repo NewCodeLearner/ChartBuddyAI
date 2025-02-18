@@ -16,3 +16,14 @@ def get_image_vector(image):
     inputs = processor(images=image,return_tensors="pt")
     outputs = model(**inputs)
     return outputs.logits
+
+# Streamlit component for uploading and displaying an image.
+def upload_and_display_image():
+    uploaded_file = st.file_uploader("Upload a chart image", type=["png","jpg","jpeg"])
+
+    if uploaded_file:
+        image = Image.open(uploaded_file).convert("RGB")
+        st.image(image,caption="Uploaded Image",use_container_width=True)
+        return image
+    
+    return None
