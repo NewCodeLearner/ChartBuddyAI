@@ -6,6 +6,7 @@ import base64
 
 # 1. Define the qdrant collection name that we created
 collection_name = "stock_charts_images"
+st.set_page_config(layout="wide") # Expands content to the full screen width
 
 # 2. Setup a state variable that we'll re-use throughout the app.
 if 'selected_record' not in st.session_state:
@@ -76,13 +77,16 @@ column = st.columns(3)
 
 # 11. Iterate over all the fetched records from DB
 #     and render a preview of each image using base64 string.
+
+
 for idx, record in enumerate(records):
     col_idx = idx % 3
     image_bytes = get_bytes_from_base64(record.payload['base64'])
-    print(image_bytes)
+    #print(image_bytes)
     with column[col_idx]:
         st.image(
-            image = image_bytes
+            image = image_bytes,
+            use_container_width=True
         )
         st.button(
 
