@@ -49,5 +49,16 @@ def upload_and_display_image():
 
             # Store results in session state to persist across reruns
             st.session_state.uploaded_search_results = search_results
-    
+
+    # ----------------- DISPLAY SEARCH RESULTS -----------------
+    if "uploaded_search_results" in st.session_state:
+        st.subheader("🔍 Similar Chart Images")
+        cols = st.columns(3)
+
+        for idx, result in enumerate(st.session_state.uploaded_search_results):
+            col_idx = idx % 3
+            image_bytes = result.payload["base64"]  # Retrieve image from DB
+            image = Image.open(io.BytesIO(image_bytes))  # Convert back to image
+            with cols[col_idx]:
+                st.image(image, caption=f"Match {idx+1}", use_container_width=True)
     return None
