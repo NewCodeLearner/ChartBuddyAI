@@ -26,15 +26,16 @@ def upload_and_display_image():
     uploaded_file = st.file_uploader("Upload a chart image", type=["png","jpg","jpeg"])
 
     if uploaded_file:
-        image = Image.open(uploaded_file).convert("RGB")
-        st.image(image,caption="Uploaded Image",use_container_width=True)
-        st.button(
+        uploaded_image = Image.open(uploaded_file).convert("RGB")
+        st.image(uploaded_image,caption="Uploaded Image",use_container_width=True)
 
-            label = "Find similar charts",
-            key = id,
-            on_click = set_selected_record, # call set the selected fn 
-            args = [image]
-        ) 
-        return image
+        # Store uploaded image in session state
+        if "uploaded_image" not in st.session_state:
+            st.session_state.uploaded_image = uploaded_image
+
+        if st.button("🔍 Show Similar Charts", key="search_uploaded"):
+            with st.spinner("Searching for similar charts..."):
+              # Ensure image vector is generated only once
+                st.session_state.uploaded_image_vector = get_image_vector(uploaded_image)
     
     return None
