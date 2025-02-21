@@ -3,7 +3,7 @@ from langchain_community.vectorstores import Qdrant
 from transformers import ViTImageProcessor, ViTModel
 from qdrant_client import QdrantClient
 import torch
-
+from transformers import CLIPModel, CLIPProcessor
 
 # 1. Create Qdrant Client
 
@@ -75,19 +75,28 @@ print('payloads created')
 
 #6. Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
-from transformers import AutoImageProcessor, ResNetForImageClassification
+#commenting resnet model to use CLIP model
+#from transformers import AutoImageProcessor, ResNetForImageClassification
 
-processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
-model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
+#processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
+#model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
 
-inputs = processor(
-    resized_images,
-    return_tensors = "pt",
-)
+#inputs = processor(
+#    resized_images,
+#    return_tensors = "pt",
+#)
 
-outputs = model(**inputs)
-embeddings = outputs.logits
+#outputs = model(**inputs)
+#embeddings = outputs.logits
 #print(embeddings)
+
+#code changes for the CLIP model usage
+def load_clip_model():
+    return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+model, processor = load_clip_model()
+inputs = processor(images=resized_images,return_tensors="pt")
+embeddings = model.get_image_features(**inputs)  # Get embeddings
 
 embeddings_length = len(embeddings[0])
 
@@ -96,7 +105,7 @@ embeddings_length = len(embeddings[0])
 # This is the collection that our vector and metadata will be stored.
 from qdrant_client.models import VectorParams,Distance
 
-collection_name = "stock_charts_images"
+collection_name = "stock_charts_images_clip"
 
 # Check if collection already exists, if yes then pass else create new.
 collection_exist = qclient.collection_exists(collection_name=collection_name)
