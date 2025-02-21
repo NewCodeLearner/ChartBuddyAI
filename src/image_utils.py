@@ -9,8 +9,19 @@ from qdrant_client import QdrantClient
 # all the images through it to create the embeddings.
 from transformers import AutoImageProcessor, ResNetForImageClassification
 
-processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
-model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
+#commenting resnet model to use CLIP model
+#processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
+#model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
+
+#Use Streamlit caching so it doesn’t reload the model every time:
+from transformers import CLIPModel, CLIPProcessor
+
+@st.cache_resource
+def load_clip_model():
+    return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+model, processor = load_clip_model()
+
 collection_name = "stock_charts_images"
 client = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
 
