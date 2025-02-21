@@ -29,10 +29,15 @@ def set_selected_record(new_record):
     st.session_state.selected_record = new_record
 
 # Converts an image to an embedding using image model
+#def get_image_vector(image):
+#    inputs = processor(images=image,return_tensors="pt")
+#    outputs = model(**inputs)
+#    return outputs.logits
+
 def get_image_vector(image):
     inputs = processor(images=image,return_tensors="pt")
-    outputs = model(**inputs)
-    return outputs.logits
+    image_features = model.get_image_features(**inputs)  # Get embeddings
+    return image_features.cpu().numpy().flatten().tolist()  # Convert to list of floats
 
 # Streamlit component for uploading and displaying an image.
 def upload_and_display_image():
