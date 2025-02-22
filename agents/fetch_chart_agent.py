@@ -53,3 +53,16 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
         
     finally:
         driver.quit()
+
+# Example usage:
+if __name__ == "__main__":
+    # Replace these parameters with actual values for a specific scrip.
+    scid = "RI"          # Example scrip ID
+    exchange_id = "RELIANCE"  # Example exchange ID
+    image_b64 = fetch_chart_image(scid, exchange_id)
+    
+    if image_b64:
+        print("Successfully fetched chart image.")
+        # You can now use the base64 string to display the image in your Flask app or save it.
+    else:
+        print("Failed to fetch chart image.")
