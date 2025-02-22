@@ -6,3 +6,4 @@ torch
 pypdf
 qdrant-client
 streamlit
+selenium
