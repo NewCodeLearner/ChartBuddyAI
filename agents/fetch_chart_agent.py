@@ -5,3 +5,51 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
+    """
+    Fetches a stock chart image from Moneycontrol for the given parameters.
+    
+    Args:
+        scid (str): The scrip ID for the stock.
+        exchange_id (str): The exchange ID for the stock.
+        ex (str): Exchange code (default 'NSE').
+        screenshot_path (str): Optional file path to save the screenshot.
+        
+    Returns:
+        str: Base64-encoded image string of the chart.
+    """
+    # Configure headless Chrome
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    
+    driver = webdriver.Chrome(options=chrome_options)
+    
+    try:
+        # Construct the URL with the given parameters
+        url = f"https://www.moneycontrol.com/mc/stock/chart?scId={scid}&exchangeId={exchange_id}&ex={ex}"
+        driver.get(url)
+        
+        # Wait for the chart element to load
+        # Adjust the CSS selector below to match the actual element containing the chart.
+        wait = WebDriverWait(driver, 15)
+        chart_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#chartContainer")))
+        
+        # Take a screenshot of the chart element
+        chart_png = chart_element.screenshot_as_png
+        
+        # Optionally, save the screenshot to a file
+        with open(screenshot_path, "wb") as f:
+            f.write(chart_png)
+        
+        # Convert the PNG data to a base64-encoded string
+        b64_string = base64.b64encode(chart_png).decode("utf-8")
+        return b64_string
+        
+    except Exception as e:
+        print(f"Error fetching chart image: {e}")
+        return None
+        
+    finally:
+        driver.quit()
