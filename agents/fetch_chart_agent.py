@@ -34,7 +34,7 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
         # Wait for the chart element to load
         # Adjust the CSS selector below to match the actual element containing the chart.
         wait = WebDriverWait(driver, 15)
-        chart_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#chartContainer")))
+        chart_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
         
         # Take a screenshot of the chart element
         chart_png = chart_element.screenshot_as_png
