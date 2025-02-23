@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os
 
 def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
     """
@@ -20,9 +21,14 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
     """
     # Configure headless Chrome
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-features=DirectComposition")
+    chrome_options.add_argument("window-size=1920,1080")
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36")
+
     
     driver = webdriver.Chrome(options=chrome_options)
     
@@ -33,9 +39,18 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
         
         # Wait for the chart element to load
         # Adjust the CSS selector below to match the actual element containing the chart.
-        wait = WebDriverWait(driver, 15)
+        wait = WebDriverWait(driver, 30)
         chart_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
         
+        print("Current working directory:", os.getcwd())
+        # Save a full-page screenshot for debugging purposes
+        full_page_screenshot = driver.get_screenshot_as_png()
+        with open("full_page_debug.png", "wb") as f:
+            f.write(full_page_screenshot)
+        print("Full page screenshot saved as 'full_page_debug.png'")
+
+        chart_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
+
         # Take a screenshot of the chart element
         chart_png = chart_element.screenshot_as_png
         
