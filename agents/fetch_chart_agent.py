@@ -40,12 +40,16 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
         # Wait for the chart element to load
         # Adjust the CSS selector below to match the actual element containing the chart.
         wait = WebDriverWait(driver, 30)
-        chart_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
-        
         print("Current working directory:", os.getcwd())
-        # Save a full-page screenshot for debugging purposes
+        iframe = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[id^='tradingview_']")))
+        driver.switch_to.frame(iframe)
+
+        print("Current working directory2:", os.getcwd())
+        # Save a full-page screenshot for debugging purposes 
+        # Enable if need to debug for any issues
+        img_folder = os.path.join(os.getcwd(), 'img')
         full_page_screenshot = driver.get_screenshot_as_png()
-        with open("full_page_debug.png", "wb") as f:
+        with open(os.path.join(img_folder, 'full_page_debug.png'), "wb") as f:
             f.write(full_page_screenshot)
         print("Full page screenshot saved as 'full_page_debug.png'")
 
@@ -55,6 +59,8 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
         chart_png = chart_element.screenshot_as_png
         
         # Optionally, save the screenshot to a file
+        img_folder = os.path.join(os.getcwd(), 'img')
+        screenshot_path = os.path.join(img_folder, 'chart.png')
         with open(screenshot_path, "wb") as f:
             f.write(chart_png)
         
