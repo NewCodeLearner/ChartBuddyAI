@@ -81,8 +81,8 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
 # Example usage:
 if __name__ == "__main__":
     # Replace these parameters with actual values for a specific scrip.
-    scid = "RI"          # Example scrip ID
-    exchange_id = "RELIANCE"  # Example exchange ID
+    scid = "ICI02"          # Example scrip ID
+    exchange_id = "ICICIBANK"  # Example exchange ID
     image_b64 = fetch_chart_image(scid, exchange_id)
     
     if image_b64:
