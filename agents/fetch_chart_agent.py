@@ -29,7 +29,8 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
     chrome_options.add_argument("--disable-features=DirectComposition")
     chrome_options.add_argument("window-size=1920,1080")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36")
-
+    # Optional: Use incognito mode to avoid caching issues
+    chrome_options.add_argument("--incognito")
     
     driver = webdriver.Chrome(options=chrome_options)
     
@@ -40,7 +41,7 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
         
         # Wait for the chart element to load
         # Adjust the CSS selector below to match the actual element containing the chart.
-        wait = WebDriverWait(driver, 30)
+        wait = WebDriverWait(driver, 60) # Increase timeout for slow loads
         print("Current working directory:", os.getcwd())
         iframe = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[id^='tradingview_']")))
         driver.switch_to.frame(iframe)
