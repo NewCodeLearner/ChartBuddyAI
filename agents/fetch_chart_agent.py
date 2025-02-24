@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
+import time
 
 def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
     """
@@ -60,7 +61,9 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
         
         # Optionally, save the screenshot to a file
         img_folder = os.path.join(os.getcwd(), 'img')
-        screenshot_path = os.path.join(img_folder, 'chart.png')
+        file_suffix = time.strftime("%Y%m%d-%H%M%S")
+        img_file_name = f"{scid}_{exchange_id}_{file_suffix}.png"
+        screenshot_path = os.path.join(img_folder, img_file_name)
         with open(screenshot_path, "wb") as f:
             f.write(chart_png)
         
