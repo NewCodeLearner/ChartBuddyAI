@@ -1,6 +1,7 @@
 import torch
 from transformers import AutoImageProcessor, ResNetForImageClassification
 from PIL import Image
+import base64
 import streamlit as st
 import io
 from qdrant_client import QdrantClient
@@ -74,8 +75,14 @@ def upload_and_display_image():
 
         for idx, result in enumerate(st.session_state.uploaded_search_results):
             col_idx = idx % 3
-            image_bytes = result.payload["base64"]  # Retrieve image from DB
-            image = Image.open(io.BytesIO(image_bytes))  # Convert back to image
+            # Retrieve image from DB
+            image_bytes_str = result.payload["base64"]  
+
+            # Decode the base64 string into bytes , Image.open() expects a byte object 
+            image_bytes = base64.b64decode(image_bytes_str)
+            
+            # Convert back to image
+            image = Image.open(io.BytesIO(image_bytes))  
             with cols[col_idx]:
                 st.image(image, caption=f"Match {idx+1}", use_container_width=True)
     return None
