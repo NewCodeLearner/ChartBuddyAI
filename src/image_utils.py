@@ -36,7 +36,8 @@ def set_selected_record(new_record):
 
 def get_image_vector(image):
     inputs = processor(images=image,return_tensors="pt")
-    image_features = model.get_image_features(**inputs)  # Get embeddings
+    with torch.no_grad():
+        image_features = model.get_image_features(**inputs)  # Get embeddings
     return image_features.cpu().numpy().flatten().tolist()  # Convert to list of floats
 
 # Streamlit component for uploading and displaying an image.
