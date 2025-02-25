@@ -92,8 +92,8 @@ for idx, record in enumerate(records):
             image = image_bytes,
             use_container_width=True
         )
-        st.button(
 
+        st.button(
             label = "Find similar charts",
             key = record.id,
             on_click = set_selected_record, # call set the selected fn 
