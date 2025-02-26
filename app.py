@@ -72,17 +72,20 @@ def get_similar_records():
     # Use query_points for Search
     if st.session_state.selected_record is not None:
         record_id = st.session_state.selected_record.id
+        print(f"Searching for similar charts to record ID: {record_id}")  
+
         vector = get_vector_by_id(client, collection_name, record_id)
 
-    if vector:
-        results = client.query_points(
-            collection_name=collection_name,
-            query_vector=vector,  # Use the extracted vector
-            limit=12
-        )
-        return results
-    else:
-        st.warning("Vector not found for selected record.")
+
+        if vector:
+            results = client.query_points(
+                collection_name=collection_name,
+                query_vector=vector,  # Use the extracted vector
+                limit=12
+            )
+            return results
+        else:
+            st.warning("Vector not found for selected record.")
 
 
 # 7. Define a convenience function to convert base64 back into bytes
