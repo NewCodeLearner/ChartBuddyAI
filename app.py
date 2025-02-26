@@ -46,15 +46,43 @@ def get_initial_records():
     return records
 
 # 6. This function will be called , If the user selected a record for which they want to see similar items.
+
+# Retrieve the Embedding for the Selected Record
+def get_vector_by_id(client, collection_name, record_id):
+    response = client.scroll(
+        collection_name=collection_name,
+        scroll_filter={"must": [{"key": "id", "match": {"value": record_id}}]},
+        limit=1
+    )
+    if response[0]:  # Ensure data is found
+        return response[0][0].vector
+    return None
+
 def get_similar_records():
     client = get_client()
 
+    #Commenting the recommend API to use query_points API
+    #if st.session_state.selected_record is not None:
+    #    return client.recommend(
+    #    collection_name = collection_name,
+    #    positive =  [st.session_state.selected_record.id],
+    #    limit =12
+    #)
+    
+    # Use query_points for Search
     if st.session_state.selected_record is not None:
-        return client.recommend(
-        collection_name = collection_name,
-        positive =  [st.session_state.selected_record.id],
-        limit =12
-    )
+        record_id = st.session_state.selected_record.id
+        vector = get_vector_by_id(client, collection_name, record_id)
+
+    if vector:
+        results = client.query_points(
+            collection_name=collection_name,
+            query_vector=vector,  # Use the extracted vector
+            limit=12
+        )
+    else:
+        st.warning("Vector not found for selected record.")
+
 
 # 7. Define a convenience function to convert base64 back into bytes
 #    that can be used by Steamlit to render images.
