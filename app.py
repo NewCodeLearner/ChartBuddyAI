@@ -41,7 +41,7 @@ def get_initial_records():
     records, _ = client.scroll(
         collection_name = collection_name,
         with_vectors = False,
-        limit = 12
+        limit = 99
     )
     return records
 
