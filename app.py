@@ -80,6 +80,7 @@ def get_similar_records():
             query_vector=vector,  # Use the extracted vector
             limit=12
         )
+        return results
     else:
         st.warning("Vector not found for selected record.")
 
