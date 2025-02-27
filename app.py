@@ -49,11 +49,14 @@ def get_initial_records():
 
 # Retrieve the Embedding for the Selected Record
 def get_vector_by_id(client, collection_name, record_id):
+
     response = client.scroll(
         collection_name=collection_name,
         scroll_filter={"must": [{"key": "id", "match": {"value": record_id}}]},
         limit=1
     )
+
+    print(response)
     if response[0]:  # Ensure data is found
         return response[0][0].vector
     return None
@@ -75,7 +78,7 @@ def get_similar_records():
         print(f"Searching for similar charts to record ID: {record_id}")  
 
         vector = get_vector_by_id(client, collection_name, record_id)
-
+        print(vector)
 
         if vector:
             results = client.query_points(

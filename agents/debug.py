@@ -11,16 +11,15 @@ collection_name = "stock_charts_images_clip"
 client = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
 
 response, _ = client.scroll(collection_name=collection_name, limit=5)
-
-for record in response:
-    print(f"ID: {record.id}, Vector Length: {len(record.vector) if record.vector else 'None'}")
-
+#print(response)
 
 def get_vector_by_id(client, collection_name, record_id):
     response = client.retrieve(
         collection_name=collection_name,
-        ids=[record_id]  # Use retrieve instead of scroll
+        ids=[0]  # Use retrieve instead of scroll
     )
+
+    print(response[0].vector)
 
     if response:
         vector = response[0].vector
@@ -34,4 +33,13 @@ def get_vector_by_id(client, collection_name, record_id):
 
     return None
 
-get_vector_by_id(client,collection_name,4)
+get_vector_by_id(client,collection_name,1)
+
+collection_info = client.get_collection(collection_name=collection_name)
+#print(collection_info)
+
+info = client.get_collection(collection_name)
+print("Vectors Count:", info.vectors_count)
+print("Indexed Vectors Count:", info.indexed_vectors_count)
+
+

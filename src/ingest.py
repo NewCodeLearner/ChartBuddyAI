@@ -4,6 +4,7 @@ from transformers import ViTImageProcessor, ViTModel
 from qdrant_client import QdrantClient
 import torch
 from transformers import CLIPModel, CLIPProcessor
+from qdrant_client.http.models import Vector
 
 # 1. Create Qdrant Client
 
@@ -113,13 +114,14 @@ collection_name = "stock_charts_images_clip"
 
 # Check if collection already exists, if yes then pass else create new.
 collection_exist = qclient.collection_exists(collection_name=collection_name)
+
 if collection_exist:
     pass
 else :
     collection = qclient.create_collection(
         collection_name = collection_name,
         vectors_config = VectorParams(
-            size = embeddings_length,
+            size = 512,
             distance = Distance.COSINE
         )
     )
@@ -141,19 +143,30 @@ records = [
     models.Record(
         id = idx,
         payload = payload_dicts[idx],
-        vector = embeddings[idx]
+        vector = list(map(float, embeddings[idx]))  # Force float conversion
+        #vector = [.001] * 512
     )
     for idx,_ in enumerate(payload_dicts)
 ]
 
 
+
 #Debug for records
 print(f"Total records: {len(records)}")
 for i, record in enumerate(records[:3]):  # Print first 3 for verification
-    print(f"Record {i} - ID: {record.id}, Vector Length: {len(record.vector)}, Payload Keys: {record.payload.keys()}")
+    print(f"Record {i} - ID: {record.id} {record.vector}")
+    print(type(record.vector))
+    #print(f"Record {i} - ID: {record.id}, Vector Length: {len(record.vector)}, Payload Keys: {record.payload.keys()}")
 
 
 # 11. Upload all the records to our collection.
+
+# Ensure collection is indexed immediately
+qclient.update_collection(
+    collection_name=collection_name,
+    optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
+)
+
 response = qclient.upsert(
     collection_name=collection_name,
     points=[
@@ -168,6 +181,12 @@ response = qclient.upsert(
 print(f"Qdrant upload response: {response}")
 print('Records Inserted in Qdrant DB')
 
+qclient.update_collection(
+    collection_name=collection_name,
+    optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
+)
 
 
+#print(f"Embedding {0}: {embeddings[0][:5]}... (Total dims: {len(embeddings[0])})")
+#print(f"Embedding {1}: {embeddings[1][:5]}... (Total dims: {len(embeddings[1])})")
 
