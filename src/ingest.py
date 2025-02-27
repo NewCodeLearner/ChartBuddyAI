@@ -98,6 +98,9 @@ model, processor = load_clip_model()
 inputs = processor(images=resized_images,return_tensors="pt")
 embeddings = model.get_image_features(**inputs)  # Get embeddings
 
+# ✅ Convert tensor to list before storing in Qdrant
+embeddings = embeddings.cpu().detach().numpy().flatten().tolist()
+
 embeddings_length = len(embeddings[0])
 
 
