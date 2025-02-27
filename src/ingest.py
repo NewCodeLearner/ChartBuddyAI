@@ -98,8 +98,9 @@ model, processor = load_clip_model()
 inputs = processor(images=resized_images,return_tensors="pt")
 embeddings = model.get_image_features(**inputs)  # Get embeddings
 
+
 # ✅ Convert tensor to list before storing in Qdrant
-embeddings = embeddings.cpu().detach().numpy().flatten().tolist()
+embeddings = embeddings.cpu().detach().numpy().tolist()
 
 embeddings_length = len(embeddings[0])
 
@@ -145,13 +146,27 @@ records = [
     for idx,_ in enumerate(payload_dicts)
 ]
 
-# 11. Upload all the records to our collection.
-qclient.upload_records(
-    collection_name = collection_name,
-    records = records
-)
-print('Records Inserted in Qdrant DB')
 
+#Debug for records
+print(f"Total records: {len(records)}")
+for i, record in enumerate(records[:3]):  # Print first 3 for verification
+    print(f"Record {i} - ID: {record.id}, Vector Length: {len(record.vector)}, Payload Keys: {record.payload.keys()}")
+
+
+# 11. Upload all the records to our collection.
+response = qclient.upsert(
+    collection_name=collection_name,
+    points=[
+        models.PointStruct(
+            id=record.id,
+            vector=record.vector,
+            payload=record.payload
+        )
+        for record in records
+    ]
+)
+print(f"Qdrant upload response: {response}")
+print('Records Inserted in Qdrant DB')
 
 
 
