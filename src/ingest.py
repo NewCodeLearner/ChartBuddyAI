@@ -23,7 +23,7 @@ all_image_urls = os.listdir(base_directory)
 #concat image urls with base directory to construct full dir path.
 sample_image_urls = all_image_urls
 sample_image_urls = list(map(lambda item : f"{base_directory}/{item}",all_image_urls))
-print(sample_image_urls[:5])
+#print(sample_image_urls[:5])
 
 
 # 3. Create a dataframe to store the image's metadata
@@ -144,23 +144,13 @@ records = [
         id = idx,
         payload = payload_dicts[idx],
         vector = list(map(float, embeddings[idx]))  # Force float conversion
-        #vector = [.001] * 512
     )
     for idx,_ in enumerate(payload_dicts)
 ]
 
 
 
-#Debug for records
-print(f"Total records: {len(records)}")
-for i, record in enumerate(records[:3]):  # Print first 3 for verification
-    print(f"Record {i} - ID: {record.id} {record.vector}")
-    print(type(record.vector))
-    #print(f"Record {i} - ID: {record.id}, Vector Length: {len(record.vector)}, Payload Keys: {record.payload.keys()}")
-
-
 # 11. Upload all the records to our collection.
-
 # Ensure collection is indexed immediately
 qclient.update_collection(
     collection_name=collection_name,
@@ -180,13 +170,4 @@ response = qclient.upsert(
 )
 print(f"Qdrant upload response: {response}")
 print('Records Inserted in Qdrant DB')
-
-qclient.update_collection(
-    collection_name=collection_name,
-    optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
-)
-
-
-#print(f"Embedding {0}: {embeddings[0][:5]}... (Total dims: {len(embeddings[0])})")
-#print(f"Embedding {1}: {embeddings[1][:5]}... (Total dims: {len(embeddings[1])})")
 
