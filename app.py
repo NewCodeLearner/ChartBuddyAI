@@ -40,7 +40,7 @@ def get_initial_records():
 
     records, _ = client.scroll(
         collection_name = collection_name,
-        with_vectors = False,
+        with_vectors = True,
         limit = 99
     )
     return records
@@ -50,15 +50,15 @@ def get_initial_records():
 # Retrieve the Embedding for the Selected Record
 def get_vector_by_id(client, collection_name, record_id):
 
-    response = client.scroll(
+    response = client.retrieve(
         collection_name=collection_name,
-        scroll_filter={"must": [{"key": "id", "match": {"value": record_id}}]},
-        limit=1
+        ids=[record_id],  # Use retrieve instead of scroll,
+        with_vectors = True
     )
 
-    print(response)
+    #print(response)
     if response[0]:  # Ensure data is found
-        return response[0][0].vector
+        return response[0].vector
     return None
 
 def get_similar_records():
