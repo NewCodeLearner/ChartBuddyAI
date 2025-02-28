@@ -78,15 +78,18 @@ def get_similar_records():
         print(f"Searching for similar charts to record ID: {record_id}")  
 
         vector = get_vector_by_id(client, collection_name, record_id)
-        print(vector)
+        #print(vector)
 
         if vector:
             results = client.query_points(
                 collection_name=collection_name,
-                query_vector=vector,  # Use the extracted vector
+                query=vector,  # Use the extracted vector,
+                with_payload=True,
                 limit=12
             )
-            return results
+            #print(f'Results from query_points: {results}')
+            #print("Type of results:", type(results))
+            return results.points
         else:
             st.warning("Vector not found for selected record.")
 
@@ -118,6 +121,8 @@ column = st.columns(3)
 
 # 11. Iterate over all the fetched records from DB
 #     and render a preview of each image using base64 string.
+
+#print(f'Results before enumerate: {records}')
 
 
 for idx, record in enumerate(records):
