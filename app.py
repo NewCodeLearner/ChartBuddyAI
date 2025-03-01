@@ -10,7 +10,9 @@ from src.image_utils import upload_and_display_image, get_image_vector
 
 pages = {
     "Your account": [
-        st.Page("search_similar_charts.py", title="Search Similar Charts")
+        st.Page("search_similar_charts.py", title="Search Similar Charts"),
+        st.Page("chartbuddy_ai_chat.py", title="Chat with AI for Similar Charts")
+
     ],
     "Resources": [
         st.Page("src/ingest.py", title="Ingest New Charts")
