@@ -13,3 +13,16 @@ else:
     st.info("Please upload or select a chart from the 'Search Similar Charts' page.")
 
 st.markdown("---")
+
+# Initialize chat history in session state if it doesn't exist
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
+
+st.header("Chat with AI")
+
+# Display chat conversation
+for message in st.session_state.chat_history:
+    if message['role'] == 'user':
+        st.markdown(f"**You:** {message['content']}")
+    else:
+        st.markdown(f"**AI:** {message['content']}")
