@@ -19,6 +19,8 @@ if 'selected_record' not in st.session_state:
 # 3. Create a function to easily set the "selected_record" value.
 def set_selected_record(new_record):
     st.session_state.selected_record = new_record
+    # Also store the image bytes so the chat page can display the selected chart.
+    st.session_state.selected_chart_image = get_bytes_from_base64(new_record.payload["base64"])
 
 # 4. This decorator will cache the qdrant client rather than creating new one each time app is refreshed.
 @st.cache_resource
