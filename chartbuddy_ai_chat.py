@@ -1,6 +1,8 @@
 import streamlit as st
 from groq import Groq
 import base64
+import os
+from dotenv import load_dotenv
 
 # Set up page configuration
 #st.set_page_config(page_title="ChartBuddy AI Chat", layout="wide")
@@ -45,7 +47,9 @@ if st.button("Send"):
         #simulated_response = f"Simulated response to: {user_message}"
 
         # Create Groq client
-        client = Groq()
+        load_dotenv()  # This loads variables from .env into the environment
+        GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+        client = Groq(api_key=GROQ_API_KEY)
         
         # Groq completion using Groq API Request: Call the chat.completions API endpoint.
         chat_completion = client.chat.completions.create(
@@ -58,7 +62,7 @@ if st.button("Send"):
                             "type":"image_url",
                             #we'll need to first encode our image to a base64 format string before passing it as the image_url in our API request
                             "image_url":{
-                                "url" : base64.b64encode(st.session_state.selected_chart_image).decode('utf-8')
+                                "url" : f"data:image/jpeg;base64,{base64.b64encode(st.session_state.selected_chart_image.read()).decode('utf-8')}"
                             }
 
                         }
