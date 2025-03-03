@@ -26,3 +26,28 @@ for message in st.session_state.chat_history:
         st.markdown(f"**You:** {message['content']}")
     else:
         st.markdown(f"**AI:** {message['content']}")
+
+# User input for new message
+user_message = st.text_input("Enter your message", key="chat_input")
+
+if st.button("Send"):
+    if user_message:
+        # Append user's message to chat history
+        st.session_state.chat_history.append({
+            "role": "user",
+            "content": user_message
+        })
+        
+        # Call your API here (Ollama, Groq, etc.) to generate a response.
+        # For this example, we'll simulate a response.
+        simulated_response = f"Simulated response to: {user_message}"
+        
+        # Append AI's response to chat history
+        st.session_state.chat_history.append({
+            "role": "assistant",
+            "content": simulated_response
+        })
+        
+        # Clear the input box (optional) and refresh the page to show updated chat history.
+        st.experimental_rerun()
+
