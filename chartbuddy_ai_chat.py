@@ -55,7 +55,7 @@ if st.button("Send"):
             # Optionally, add an image message at the beginning of the conversation.
             conversation.append({
                 "role": "user",
-                "content": f"[IMAGE]{image_data_url}[/IMAGE]"
+                "content": [{"type": "image_url", "image_url": {"url": image_data_url}}]
             })
             # Reset the file pointer so the image can be used/displayed again.
             st.session_state.selected_chart_image.seek(0)
@@ -81,7 +81,22 @@ if st.button("Send"):
         
         # Groq completion using Groq API Request: Call the chat.completions API endpoint.
         chat_completion = client.chat.completions.create(
-            messages =conversation,
+            messages =[
+                {
+                    "role":"user",
+                    "content":[
+                        {"type":"text", "text" : user_message},
+                        {
+                            "type":"image_url",
+                            #we'll need to first encode our image to a base64 format string before passing it as the image_url in our API request
+                            "image_url":{
+                                "url" : f"data:image/jpeg;base64,{base64.b64encode(st.session_state.selected_chart_image.read()).decode('utf-8')}"
+                            }
+
+                        }
+                    ]
+                }
+            ],
             model="llama-3.2-11b-vision-preview",
         )
         
