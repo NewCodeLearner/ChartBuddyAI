@@ -41,6 +41,26 @@ if st.button("Send"):
             "role": "user",
             "content": user_message
         })
+
+        # Build the conversation history for the API
+        conversation = []
+
+        # If an image is selected, add it to the conversation.
+        # Here, we add the image as part of the first message.
+        if 'selected_chart_image' in st.session_state:
+            # Read image bytes, convert to base64 and build a data URL.
+            image_bytes = st.session_state.selected_chart_image.read()
+            base64_image = base64.b64encode(image_bytes).decode('utf-8')
+            image_data_url = f"data:image/jpeg;base64,{base64_image}"
+            # Optionally, add an image message at the beginning of the conversation.
+            conversation.append({
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {"url": image_data_url}}
+                ]
+            })
+            # Reset the file pointer so the image can be used/displayed again.
+            st.session_state.selected_chart_image.seek(0)
         
         # Call your API here (Ollama, Groq, etc.) to generate a response.
         # For this example, we'll simulate a response.
@@ -57,7 +77,7 @@ if st.button("Send"):
                 {
                     "role":"user",
                     "content":[
-                        {"type":"text", "text" : "Whats in this image? which candlestick pattern do you recognize in this chart?"},
+                        {"type":"text", "text" : user_message},
                         {
                             "type":"image_url",
                             #we'll need to first encode our image to a base64 format string before passing it as the image_url in our API request
