@@ -1,7 +1,8 @@
 import streamlit as st
 import base64
+from PIL import Image
 import requests
-import os,re
+import os,re,io
 from dotenv import load_dotenv
 from groq import Groq
 from src.image_utils import upload_and_display_image, get_image_vector
@@ -25,7 +26,7 @@ def get_stock_name(prompt):
         tokens = prompt.strip().split()
         if tokens and tokens[-1].isupper():
             exchange_id = tokens[-1]
-    print (exchange_id)
+    
 
     query = exchange_id
     # Construct the API URL by inserting the query text.
@@ -67,5 +68,10 @@ st.title("Agent for Fetching New Stock Charts")
 user_input = st.text_input("Enter your command (e.g., 'Show me the chart for ICICIBANK'):")
 
 if st.button("Run Agent"):
-    result = get_stock_name(user_input)
-    st.write(result)
+    #result = get_stock_name(user_input)
+    scid,exchange_id = get_stock_name(user_input)
+    result = fetch_chart_image(scid,exchange_id)
+    image_bytes = base64.b64decode(result)
+    downloaded_image = Image.open(io.BytesIO(image_bytes))
+    st.image(downloaded_image,caption= f"Downloaded Stock Chart Image for {exchange_id} ")
+    st.write(f"Downloaded Stock Chart Image for {exchange_id} ")
