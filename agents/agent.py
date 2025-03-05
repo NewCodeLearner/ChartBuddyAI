@@ -27,23 +27,30 @@ def get_stock_name(prompt):
             exchange_id = tokens[-1]
     print (exchange_id)
 
-    query =''
+    query = exchange_id
     # Construct the API URL by inserting the query text.
     url = f"https://priceapi.moneycontrol.com/techCharts/indianMarket/stock/search?limit=30&query={query}&type=&exchange="
 
     try:
-        response = requests.get(url)
+        #Add Request Headers:The endpoint might be blocking requests that don't mimic a browser.
+        headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Referer": "https://www.moneycontrol.com/",
+                  }
+        response = requests.get(url,headers=headers)
         response.raise_for_status()
         data = response.json()
+        print(data)
 
-                # The API might return a list of results. Adjust the key(s) based on the actual structure.
-        stocks = data.get("data", [])
+        # The API might return a list of results. Adjust the key(s) based on the actual structure.
+        stocks = data
         if stocks:
             # We'll choose the first stock in the result as the match.
             stock = stocks[0]
             # Adjust these keys based on the API response; here we assume keys "scId" and "exchangeId" or similar.
-            scid = stock.get("scId") or stock.get("symbol")
-            exchange_id = stock.get("exchangeId") or stock.get("exchId")
+            scid = stock.get("symbol") or stock.get("symbol")
+            exchange_id = stock.get("ticker") or stock.get("ticker")
             return scid, exchange_id
 
     except Exception as e:
