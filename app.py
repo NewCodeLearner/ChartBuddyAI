@@ -15,7 +15,7 @@ pages = {
 
     ],
     "Resources": [
-        st.Page("src/ingest.py", title="Ingest New Charts")
+        st.Page("agents/agent.py", title="Ingest New Charts")
     ],
 }
 
