@@ -5,7 +5,7 @@ import requests
 import os,re,io
 from dotenv import load_dotenv
 from groq import Groq
-from src.image_utils import upload_and_display_image, get_image_vector
+from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image
 from agents.fetch_chart_agent import fetch_chart_image  # Import your function
 
 # Tool to extract stock information from the user prompt.
@@ -77,4 +77,8 @@ if st.button("Run Agent"):
     st.write(f"Downloaded Stock Chart Image for {exchange_id} ")
 
 if st.button("Save Chart Image"):
+    if 'downloaded_chart_image' not in st.session_state:
+        st.session_state.downloaded_chart_image = downloaded_image
+
+    ingest_chart_image()
     st.write(f"Ingested chart image with ID {exchange_id} into Qdrant.")

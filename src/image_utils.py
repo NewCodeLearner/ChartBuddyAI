@@ -4,7 +4,7 @@ from PIL import Image
 import base64
 import streamlit as st
 import io,time
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient , models
 
 # Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
@@ -90,14 +90,16 @@ def upload_and_display_image():
 def ingest_chart_image():
         
     # Reset file pointer (if needed) before reading for embedding and base64 conversion
-    st.session_state.selected_chart_image.seek(0)
+    st.session_state.downloaded_chart_image.seek(0)
 
     # Get the vector embedding from the image using your CLIP or similar model.
-    vector = get_image_vector(st.session_state.selected_chart_image)
+    # Convert BytesIO to PIL Image
+    pil_image = Image.open(st.session_state.downloaded_chart_image)
+    vector = get_image_vector(pil_image)
 
     # Reset the file pointer again to read for base64 conversion
-    st.session_state.selected_chart_image.seek(0)
-    image_bytes = st.session_state.selected_chart_image.read()
+    st.session_state.downloaded_chart_image.seek(0)
+    image_bytes = st.session_state.downloaded_chart_image.read()
     base64_image = base64.b64encode(image_bytes).decode('utf-8')
 
     # Prepare payload with any metadata you want (for example, the base64 string, timestamp, etc.)
@@ -108,3 +110,16 @@ def ingest_chart_image():
     }
     # Use a unique id; here we simply use a timestamp or you can integrate your own id generation logic.
     record_id = int(time.time())
+
+    # Create a Qdrant PointStruct with id, vector, and payload
+    point = models.PointStruct(
+        id=record_id,
+        vector=vector,   # Make sure this is a list of floats (e.g., 512 dims)
+        payload=payload
+    )
+    
+    # Upsert the point into the Qdrant collection
+    client.upsert(
+        collection_name=collection_name,
+        points=[point]
+    )
