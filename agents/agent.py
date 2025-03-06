@@ -73,12 +73,11 @@ if st.button("Run Agent"):
     result = fetch_chart_image(scid,exchange_id)
     image_bytes = base64.b64decode(result)
     downloaded_image = Image.open(io.BytesIO(image_bytes))
+    if 'downloaded_chart_image' not in st.session_state:
+        st.session_state.downloaded_chart_image = image_bytes
     st.image(downloaded_image,caption= f"Downloaded Stock Chart Image for {exchange_id} ")
     st.write(f"Downloaded Stock Chart Image for {exchange_id} ")
 
 if st.button("Save Chart Image"):
-    if 'downloaded_chart_image' not in st.session_state:
-        st.session_state.downloaded_chart_image = downloaded_image
-
     ingest_chart_image()
-    st.write(f"Ingested chart image with ID {exchange_id} into Qdrant.")
+    st.write(f"Ingested chart image into Qdrant.")

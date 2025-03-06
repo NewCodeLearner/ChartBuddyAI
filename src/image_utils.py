@@ -89,17 +89,17 @@ def upload_and_display_image():
 
 def ingest_chart_image():
         
-    # Reset file pointer (if needed) before reading for embedding and base64 conversion
-    st.session_state.downloaded_chart_image.seek(0)
+    # Wrap the stored image bytes into a BytesIO object
+    img_buffer = io.BytesIO(st.session_state.downloaded_chart_image)
 
     # Get the vector embedding from the image using your CLIP or similar model.
     # Convert BytesIO to PIL Image
-    pil_image = Image.open(st.session_state.downloaded_chart_image)
+    pil_image = Image.open(img_buffer)
     vector = get_image_vector(pil_image)
 
     # Reset the file pointer again to read for base64 conversion
-    st.session_state.downloaded_chart_image.seek(0)
-    image_bytes = st.session_state.downloaded_chart_image.read()
+    img_buffer.seek(0)
+    image_bytes = img_buffer.read()
     base64_image = base64.b64encode(image_bytes).decode('utf-8')
 
     # Prepare payload with any metadata you want (for example, the base64 string, timestamp, etc.)
