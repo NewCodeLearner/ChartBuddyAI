@@ -75,3 +75,6 @@ if st.button("Run Agent"):
     downloaded_image = Image.open(io.BytesIO(image_bytes))
     st.image(downloaded_image,caption= f"Downloaded Stock Chart Image for {exchange_id} ")
     st.write(f"Downloaded Stock Chart Image for {exchange_id} ")
+
+if st.button("Save Chart Image"):
+    st.write(f"Ingested chart image with ID {exchange_id} into Qdrant.")

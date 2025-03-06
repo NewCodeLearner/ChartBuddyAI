@@ -86,3 +86,11 @@ def upload_and_display_image():
             with cols[col_idx]:
                 st.image(image, caption=f"Match {idx+1}", use_container_width=True)
     return None
+
+def ingest_chart_image():
+        
+    # Reset file pointer (if needed) before reading for embedding and base64 conversion
+    st.session_state.selected_chart_image.seek(0)
+
+    # Get the vector embedding from the image using your CLIP or similar model.
+    vector = get_image_vector(st.session_state.selected_chart_image)
