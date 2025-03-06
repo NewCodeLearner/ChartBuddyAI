@@ -3,7 +3,7 @@ from transformers import AutoImageProcessor, ResNetForImageClassification
 from PIL import Image
 import base64
 import streamlit as st
-import io
+import io,time
 from qdrant_client import QdrantClient
 
 # Import the model and tokenizer then run 
@@ -94,3 +94,17 @@ def ingest_chart_image():
 
     # Get the vector embedding from the image using your CLIP or similar model.
     vector = get_image_vector(st.session_state.selected_chart_image)
+
+    # Reset the file pointer again to read for base64 conversion
+    st.session_state.selected_chart_image.seek(0)
+    image_bytes = st.session_state.selected_chart_image.read()
+    base64_image = base64.b64encode(image_bytes).decode('utf-8')
+
+    # Prepare payload with any metadata you want (for example, the base64 string, timestamp, etc.)
+    payload = {
+        "base64": base64_image,
+        "type": "Moneycontrol",
+        "image_url": None
+    }
+    # Use a unique id; here we simply use a timestamp or you can integrate your own id generation logic.
+    record_id = int(time.time())
