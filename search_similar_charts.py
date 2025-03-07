@@ -2,6 +2,7 @@ import streamlit as st
 from qdrant_client import QdrantClient
 from io import BytesIO
 import base64
+import random
 from src.image_utils import upload_and_display_image, get_image_vector
 
 
@@ -38,12 +39,20 @@ def get_client():
 def get_initial_records():
     client = get_client()
 
-    records, _ = client.scroll(
+    all_records, _ = client.scroll(
         collection_name = collection_name,
         with_vectors = True,
-        limit = 99
+        limit = 10000
     )
+
+    # Sample 99 random records (if available)
+    if len(all_records) > 99:
+        records = random.sample(all_records, 99)
+    else:
+        records = all_records
+
     return records
+
 
 # 6. This function will be called , If the user selected a record for which they want to see similar items.
 
