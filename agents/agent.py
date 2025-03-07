@@ -76,7 +76,13 @@ if st.button("Run Agent"):
     # Enhance the image
     enhanced_image = enhance_image(downloaded_image)
     if 'downloaded_chart_image' not in st.session_state:
-        st.session_state.downloaded_chart_image = image_bytes
+        #Pass the Enhanced image bytes to storage instead of downloaded basic image
+        buffer = io.BytesIO()
+        enhanced_image.save(buffer, format="PNG")  # or "JPEG" depending on your needs
+        buffer.seek(0)
+        enhanced_image_bytes = buffer.getvalue()
+        st.session_state.downloaded_chart_image = enhanced_image_bytes
+
     st.image(enhanced_image,caption= f"Downloaded Stock Chart Image for {exchange_id} ")
     st.write(f"Downloaded Stock Chart Image for {exchange_id} ")
 
