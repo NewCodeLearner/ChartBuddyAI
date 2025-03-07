@@ -1,6 +1,6 @@
 import torch
 from transformers import AutoImageProcessor, ResNetForImageClassification
-from PIL import Image
+from PIL import Image,ImageEnhance
 import base64
 import streamlit as st
 import io,time
@@ -40,6 +40,14 @@ def get_image_vector(image):
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)  # Get embeddings
     return image_features.cpu().numpy().flatten().tolist()  # Convert to list of floats
+
+
+# Enhance the image using PIL.ImageEnhance
+def enhance_image(pil_image, upscale_factor=2, sharpness_factor=2.0, contrast_factor=1.5, color_factor=1.2):
+    # Upscale the image using a high-quality interpolation (BICUBIC)
+    new_size = (pil_image.width * upscale_factor, pil_image.height * upscale_factor)
+    upscaled_image = pil_image.resize(new_size, Image.BICUBIC)
+    
 
 # Streamlit component for uploading and displaying an image.
 def upload_and_display_image():
