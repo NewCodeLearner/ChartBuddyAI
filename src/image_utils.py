@@ -47,6 +47,20 @@ def enhance_image(pil_image, upscale_factor=2, sharpness_factor=2.0, contrast_fa
     # Upscale the image using a high-quality interpolation (BICUBIC)
     new_size = (pil_image.width * upscale_factor, pil_image.height * upscale_factor)
     upscaled_image = pil_image.resize(new_size, Image.BICUBIC)
+
+    # Enhance sharpness
+    enhancer = ImageEnhance.Sharpness(upscaled_image)
+    sharp_image = enhancer.enhance(sharpness_factor)
+    
+    # Enhance contrast
+    contrast_enhancer = ImageEnhance.Contrast(sharp_image)
+    contrast_image = contrast_enhancer.enhance(contrast_factor)
+    
+    # Enhance color saturation
+    color_enhancer = ImageEnhance.Color(contrast_image)
+    final_image = color_enhancer.enhance(color_factor)
+    
+    return final_image
     
 
 # Streamlit component for uploading and displaying an image.

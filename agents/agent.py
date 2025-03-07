@@ -5,7 +5,7 @@ import requests
 import os,re,io
 from dotenv import load_dotenv
 from groq import Groq
-from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image
+from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 from agents.fetch_chart_agent import fetch_chart_image  # Import your function
 
 # Tool to extract stock information from the user prompt.
@@ -73,9 +73,11 @@ if st.button("Run Agent"):
     result = fetch_chart_image(scid,exchange_id)
     image_bytes = base64.b64decode(result)
     downloaded_image = Image.open(io.BytesIO(image_bytes))
+    # Enhance the image
+    enhanced_image = enhance_image(downloaded_image)
     if 'downloaded_chart_image' not in st.session_state:
         st.session_state.downloaded_chart_image = image_bytes
-    st.image(downloaded_image,caption= f"Downloaded Stock Chart Image for {exchange_id} ")
+    st.image(enhanced_image,caption= f"Downloaded Stock Chart Image for {exchange_id} ")
     st.write(f"Downloaded Stock Chart Image for {exchange_id} ")
 
 if st.button("Save Chart Image"):
