@@ -143,6 +143,10 @@ for idx, record in enumerate(records):
             image = image_bytes,
             use_container_width=True
         )
+        
+        # Only display the similarity score if it exists (e.g., after a similarity search)
+        if hasattr(record, 'score') and record.score is not None:
+            st.write(f"Similarity: {record.score:.3f}")
 
         st.button(
             label = "Find similar charts",
