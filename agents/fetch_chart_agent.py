@@ -28,6 +28,9 @@ def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-features=DirectComposition")
     chrome_options.add_argument("window-size=1920,1080")
+    #chrome options for High DPI Settings screenshot will capture more pixels per CSS pixel
+    chrome_options.add_argument("--force-device-scale-factor=2")
+    chrome_options.add_argument("--high-dpi-support=1")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36")
     # Optional: Use incognito mode to avoid caching issues
     chrome_options.add_argument("--incognito")
