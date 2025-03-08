@@ -133,11 +133,22 @@ column = st.columns(3)
 
 #print(f'Results before enumerate: {records}')
 
+# Save the ID of the base search image for filtering
+# Only set base_id if a selected_record exists
+base_record = st.session_state.get("selected_record")
+base_id = base_record.id if base_record is not None else None
+
 
 for idx, record in enumerate(records):
     col_idx = idx % 3
     image_bytes = get_bytes_from_base64(record.payload['base64'])
     #print(image_bytes)
+
+    # Skip the base image if its id matches the query image id
+    # If a base image is selected and its ID matches the current record, skip it.
+    if base_id is not None and record.id == base_id:
+        continue
+    
     with column[col_idx]:
         st.image(
             image = image_bytes,
