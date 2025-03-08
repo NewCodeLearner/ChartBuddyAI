@@ -94,7 +94,7 @@ def get_similar_records():
                 collection_name=collection_name,
                 query=vector,  # Use the extracted vector,
                 with_payload=True,
-                limit=12
+                limit=13
             )
             #print(f'Results from query_points: {results}')
             #print("Type of results:", type(results))
