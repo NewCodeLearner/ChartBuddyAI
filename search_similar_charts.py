@@ -7,7 +7,7 @@ from src.image_utils import upload_and_display_image, get_image_vector
 
 
 # 1. Define the qdrant collection name that we created
-collection_name = "stock_charts_images_clip"
+collection_name = "stock_charts_images_clip_enhanced"
 
 
 # Upload image and display it

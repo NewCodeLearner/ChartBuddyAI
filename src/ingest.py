@@ -5,6 +5,7 @@ from qdrant_client import QdrantClient
 import torch
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
+from image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 
 # 1. Create Qdrant Client
 
@@ -56,7 +57,7 @@ def resize_image(image_url):
     resized_pil_image = pil_image.resize((512, 512))
 #    print("orig: " , pil_image.size)
 #    print("resize: ",resized_pil_image.size)
-
+    resized_pil_image = enhance_image(resized_pil_image)
     return resized_pil_image
 
 def convert_image_to_base64(pil_image):
@@ -110,7 +111,7 @@ embeddings_length = len(embeddings[0])
 # This is the collection that our vector and metadata will be stored.
 from qdrant_client.models import VectorParams,Distance
 
-collection_name = "stock_charts_images_clip"
+collection_name = "stock_charts_images_clip_enhanced"
 
 # Check if collection already exists, if yes then pass else create new.
 collection_exist = qclient.collection_exists(collection_name=collection_name)

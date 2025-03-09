@@ -23,7 +23,7 @@ def load_clip_model():
 
 model, processor = load_clip_model()
 
-collection_name = "stock_charts_images_clip"
+collection_name = "stock_charts_images_clip_enhanced"
 client = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
 
 def set_selected_record(new_record):
