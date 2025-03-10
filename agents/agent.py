@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 from agents.fetch_chart_agent import fetch_chart_image  # Import your function
+from src.ingest import ingest_records_with_progress
 
 # Tool to extract stock information from the user prompt.
 def get_stock_name(prompt):
@@ -63,13 +64,13 @@ def get_stock_name(prompt):
     exchange_id = "DUMMY01"
     return scid, exchange_id
 
-st.title("Agent for Fetching New Stock Charts")
+st.title("Ingest New Stock Charts")
 
 # Create tabs for the two functionalities
 tab1, tab2 = st.tabs(["Fetch Chart", "Ingest All Charts"])
 
 with tab1:
-    st.header("Fetch Chart")
+    st.header("Agent for Fetching New Stock Charts")
     user_input = st.text_input("Enter your command (e.g., 'Show me the chart for ICICIBANK'):")
 
     if st.button("Run Agent - Fetch Chart"):
@@ -92,6 +93,12 @@ with tab1:
         st.write(f"Downloaded Stock Chart Image for {exchange_id} ")
 
 
-if st.button("Save Chart Image"):
-    ingest_chart_image()
-    st.write(f"Ingested chart image into Qdrant.")
+    if st.button("Save Chart Image"):
+        ingest_chart_image()
+        st.write(f"Ingested chart image into Qdrant.")
+
+with tab2:
+    st.header("Ingest All Charts")
+    if st.button("Ingest All Charts"):
+        ingest_chart_image()  # This function ingests the chart stored in session state
+        st.write("Ingested chart image into Qdrant.")
