@@ -6,6 +6,7 @@ import torch
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
 from image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
+import streamlit as st
 
 # 1. Create Qdrant Client
 
@@ -158,17 +159,44 @@ qclient.update_collection(
     optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
 )
 
-response = qclient.upsert(
-    collection_name=collection_name,
-    points=[
-        models.PointStruct(
-            id=record.id,
-            vector=record.vector,
-            payload=record.payload
+#response = qclient.upsert(
+#    collection_name=collection_name,
+#    points=[
+#        models.PointStruct(
+#            id=record.id,
+#            vector=record.vector,
+#            payload=record.payload
+#        )
+#        for record in records
+#    ]
+#)
+def ingest_records_with_progress(records, batch_size=100):
+    total_records = len(records)
+    total_batches = math.ceil(total_records / batch_size)
+    progress_bar = st.progress(0)
+    client = qclient
+    
+    for i in range(total_batches):
+        start = i * batch_size
+        end = start + batch_size
+        batch_records = records[start:end]
+        response = client.upsert(
+            collection_name=collection_name,
+            points=[
+                models.PointStruct(
+                    id=record.id,
+                    vector=record.vector,
+                    payload=record.payload
+                )
+                for record in batch_records
+            ]
         )
-        for record in records
-    ]
-)
+        # Update progress: progress is a value between 0 and 1.
+        progress_bar.progress((i + 1) / total_batches)
+        
+st.success("Ingestion complete!")
+
+response =ingest_records_with_progress(records)
 print(f"Qdrant upload response: {response}")
 print('Records Inserted in Qdrant DB')
 
