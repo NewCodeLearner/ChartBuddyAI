@@ -5,7 +5,7 @@ from qdrant_client import QdrantClient
 import torch
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
-from image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
+from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 import streamlit as st
 
 # 1. Create Qdrant Client

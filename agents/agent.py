@@ -100,5 +100,5 @@ with tab1:
 with tab2:
     st.header("Ingest All Charts")
     if st.button("Ingest All Charts"):
-        ingest_chart_image()  # This function ingests the chart stored in session state
+        ingest_records_with_progress()  # This function ingests the chart stored in img folder locally
         st.write("Ingested chart image into Qdrant.")
