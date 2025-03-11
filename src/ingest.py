@@ -7,39 +7,37 @@ from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
 from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 import streamlit as st
-
-# 1. Create Qdrant Client
-
-qclient = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
-
-print(qclient.info())
-#<qdrant_client.qdrant_client.QdrantClient object at 0x000001DDE0B69430>
-
-# 2. Fetch All images in the dataset
 import os
 
-base_directory = "img"
-all_image_urls = os.listdir(base_directory)
+# 1. Create Qdrant Client
+def load_qdrant_client():
+    return QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
+
+
+# 2. Fetch All images in the dataset
+def load_images_and_payloads(base_directory="img"):
+
+    all_image_urls = os.listdir(base_directory)
 #print(all_image_urls[:5])
 
-#concat image urls with base directory to construct full dir path.
-sample_image_urls = all_image_urls
-sample_image_urls = list(map(lambda item : f"{base_directory}/{item}",all_image_urls))
-#print(sample_image_urls[:5])
+    #concat image urls with base directory to construct full dir path.
+    sample_image_urls = list(map(lambda item : f"{base_directory}/{item}",all_image_urls))
+    #print(sample_image_urls[:5])
 
 
-# 3. Create a dataframe to store the image's metadata
-from pandas import DataFrame
-from PIL import Image
+    # 3. Create a dataframe to store the image's metadata
+    from pandas import DataFrame
+    from PIL import Image
 
-payloads = DataFrame.from_records({"image_url": sample_image_urls})
-payloads["type"] = "stockchart"
-#print(payloads)
+    payloads = DataFrame.from_records({"image_url": sample_image_urls})
+    payloads["type"] = "stockchart"
+    #print(payloads)
 
-# 4. Create PIL (Python Imaging Library) image from each of the local URLs.
-# PIL provides a wide range of functions for image processing, such as resizing, cropping, rotating, and applying filters.
-images =  list(map(lambda imgurl : Image.open(imgurl),payloads['image_url']))
-#print(images)
+    # 4. Create PIL (Python Imaging Library) image from each of the local URLs.
+    # PIL provides a wide range of functions for image processing, such as resizing, cropping, rotating, and applying filters.
+    images =  list(map(lambda imgurl : Image.open(imgurl),payloads['image_url']))
+    #print(images)
+    return images,payloads,sample_image_urls
 
 
 
@@ -200,3 +198,11 @@ response =ingest_records_with_progress(records)
 print(f"Qdrant upload response: {response}")
 print('Records Inserted in Qdrant DB')
 
+
+if __name__ == "__main__":
+    # Create Qdrant client and print its info for debugging.
+    qclient = load_qdrant_client()
+    print(qclient.info())
+
+    # Load images and payloads from the base directory.
+    images, payloads, sample_image_urls = load_images_and_payloads("img")
