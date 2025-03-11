@@ -66,8 +66,6 @@ def convert_images_to_base64(pil_image):
     return base64_strings
 
 
-#print(payloads)
-
 #6. Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
 #commenting resnet model to use CLIP model
@@ -89,16 +87,13 @@ def convert_images_to_base64(pil_image):
 def load_clip_model():
     return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-model, processor = load_clip_model()
-inputs = processor(images=resized_images,return_tensors="pt")
-embeddings = model.get_image_features(**inputs)  # Get embeddings
-
-
-# ✅ Convert tensor to list before storing in Qdrant
-embeddings = embeddings.cpu().detach().numpy().tolist()
-
-embeddings_length = len(embeddings[0])
-
+def load_clip_embeddings(resized_images):
+    model, processor = load_clip_model()
+    inputs = processor(images=resized_images, return_tensors="pt")
+    embeddings = model.get_image_features(**inputs) # Get embeddings
+    # ✅ Convert tensor to list before storing in Qdrant
+    embeddings = embeddings.cpu().detach().numpy().tolist()
+    return embeddings
 
 # 8. Create a collection called "stock_charts_images"
 # This is the collection that our vector and metadata will be stored.
@@ -205,6 +200,9 @@ if __name__ == "__main__":
     resized_images = resize_and_enhance_images(sample_image_urls)
 
     # Convert enhanced images to Base64 strings and add to payload.
-    base64_strings=convert_image_to_base64(resized_images)
+    base64_strings=convert_images_to_base64(resized_images)
     payloads['base64'] = base64_strings
     print('base64 payloads created')
+
+    # Get embeddings using CLIP.
+    embeddings = load_clip_embeddings(resized_images)
