@@ -4,6 +4,7 @@ from transformers import ViTImageProcessor, ViTModel
 from qdrant_client import QdrantClient,models
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
+from qdrant_client.models import VectorParams,Distance
 from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 import streamlit as st
 import os,math,base64
@@ -95,28 +96,6 @@ def load_clip_embeddings(resized_images):
     embeddings = embeddings.cpu().detach().numpy().tolist()
     return embeddings
 
-# 8. Create a collection called "stock_charts_images"
-# This is the collection that our vector and metadata will be stored.
-from qdrant_client.models import VectorParams,Distance
-
-collection_name = "stock_charts_images_clip_enhanced"
-
-# Check if collection already exists, if yes then pass else create new.
-collection_exist = qclient.collection_exists(collection_name=collection_name)
-
-if collection_exist:
-    pass
-else :
-    collection = qclient.create_collection(
-        collection_name = collection_name,
-        vectors_config = VectorParams(
-            size = 512,
-            distance = Distance.COSINE
-        )
-    )
-#    print(collection)
-
-
 # 9. The Metadata must be uploaded as an array of objects so
 # convert the dataframe to an array of objects before continuing.
 
@@ -135,15 +114,6 @@ def create_records(payloads, embeddings):
         for idx,_ in enumerate(payload_dicts)
     ]
     return records
-
-
-
-# 11. Upload all the records to our collection.
-# Ensure collection is indexed immediately
-qclient.update_collection(
-    collection_name=collection_name,
-    optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
-)
 
 def ingest_records_with_progress(records, batch_size=100):
     total_records = len(records)
@@ -169,11 +139,8 @@ def ingest_records_with_progress(records, batch_size=100):
         # Update progress: progress is a value between 0 and 1.
         progress_bar.progress((i + 1) / total_batches)
         
-st.success("Ingestion complete!")
-
-response =ingest_records_with_progress(records)
-print(f"Qdrant upload response: {response}")
-print('Records Inserted in Qdrant DB')
+    st.success("Ingestion complete!")
+    return response
 
 
 if __name__ == "__main__":
@@ -197,3 +164,32 @@ if __name__ == "__main__":
 
     # Create records combining payload and embeddings.
     records = create_records(payloads, embeddings)
+
+    # This is the collection that our vector and metadata will be stored.
+    collection_name = "stock_charts_images_clip_enhanced"
+
+    # Check if collection already exists, if yes then pass else create new.
+    collection_exist = qclient.collection_exists(collection_name=collection_name)
+
+    if collection_exist:
+        pass
+    else :
+        collection = qclient.create_collection(
+            collection_name = collection_name,
+            vectors_config = VectorParams(
+                size = 512,
+                distance = Distance.COSINE
+            )
+        )
+    #    print(collection)
+
+    # 11. Upload all the records to our collection.
+    # Ensure collection is indexed immediately
+    qclient.update_collection(
+        collection_name=collection_name,
+        optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
+    )
+
+    response =ingest_records_with_progress(qclient, collection_name, records)
+    print(f"Qdrant upload response: {response}")
+    print('Records Inserted in Qdrant DB')
