@@ -1,7 +1,7 @@
 #Code file to import documents,images into Qdrant database
 from langchain_community.vectorstores import Qdrant
 from transformers import ViTImageProcessor, ViTModel
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient,models
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
 from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
@@ -119,23 +119,22 @@ else :
 
 # 9. The Metadata must be uploaded as an array of objects so
 # convert the dataframe to an array of objects before continuing.
-payload_dicts = payloads.to_dict(
-    orient = "records"
-)
-#print(payload_dicts)
 
-# 10. Create the record. This is the payload (metadata) and the vector embeddings
-# side by side. Because we have two arrays of data
-from qdrant_client import models
+def create_records(payloads, embeddings):
+    payload_dicts = payloads.to_dict(orient = "records")
+    #print(payload_dicts)
 
-records = [
-    models.Record(
-        id = idx,
-        payload = payload_dicts[idx],
-        vector = list(map(float, embeddings[idx]))  # Force float conversion
-    )
-    for idx,_ in enumerate(payload_dicts)
-]
+    # 10. Create the record. This is the payload (metadata) and the vector embeddings
+    # side by side. Because we have two arrays of data
+    records = [
+        models.Record(
+            id = idx,
+            payload = payload_dicts[idx],
+            vector = list(map(float, embeddings[idx]))  # Force float conversion
+        )
+        for idx,_ in enumerate(payload_dicts)
+    ]
+    return records
 
 
 
@@ -146,17 +145,6 @@ qclient.update_collection(
     optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
 )
 
-#response = qclient.upsert(
-#    collection_name=collection_name,
-#    points=[
-#        models.PointStruct(
-#            id=record.id,
-#            vector=record.vector,
-#            payload=record.payload
-#        )
-#        for record in records
-#    ]
-#)
 def ingest_records_with_progress(records, batch_size=100):
     total_records = len(records)
     total_batches = math.ceil(total_records / batch_size)
@@ -206,3 +194,6 @@ if __name__ == "__main__":
 
     # Get embeddings using CLIP.
     embeddings = load_clip_embeddings(resized_images)
+
+    # Create records combining payload and embeddings.
+    records = create_records(payloads, embeddings)
