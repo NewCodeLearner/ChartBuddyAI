@@ -2,12 +2,15 @@
 from langchain_community.vectorstores import Qdrant
 from transformers import ViTImageProcessor, ViTModel
 from qdrant_client import QdrantClient
-import torch
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
 from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 import streamlit as st
-import os
+import os,math,base64
+from io import BytesIO
+from pandas import DataFrame
+from PIL import Image
+
 
 # 1. Create Qdrant Client
 def load_qdrant_client():
@@ -18,7 +21,7 @@ def load_qdrant_client():
 def load_images_and_payloads(base_directory="img"):
 
     all_image_urls = os.listdir(base_directory)
-#print(all_image_urls[:5])
+    #print(all_image_urls[:5])
 
     #concat image urls with base directory to construct full dir path.
     sample_image_urls = list(map(lambda item : f"{base_directory}/{item}",all_image_urls))
@@ -26,9 +29,6 @@ def load_images_and_payloads(base_directory="img"):
 
 
     # 3. Create a dataframe to store the image's metadata
-    from pandas import DataFrame
-    from PIL import Image
-
     payloads = DataFrame.from_records({"image_url": sample_image_urls})
     payloads["type"] = "stockchart"
     #print(payloads)
@@ -43,21 +43,16 @@ def load_images_and_payloads(base_directory="img"):
 
 # 5. Create Base64 string representations to store alongside
 # metadata. This will allow us to preview the images.
-from io import BytesIO
-import math
-import base64
-
-target_width = 256
-
-def resize_image(image_url):
-    pil_image = Image.open(image_url)
-    pil_image = pil_image.convert("RGB")
-#    print(pil_image.mode)
-    resized_pil_image = pil_image.resize((512, 512))
-#    print("orig: " , pil_image.size)
-#    print("resize: ",resized_pil_image.size)
-    resized_pil_image = enhance_image(resized_pil_image)
-    return resized_pil_image
+def resize_and_enhance_images(sample_image_urls):
+    def resize_image(image_url):
+        pil_image = Image.open(image_url)
+        pil_image = pil_image.convert("RGB")
+        resized_pil_image = pil_image.resize((512, 512))
+        resized_pil_image = enhance_image(resized_pil_image)
+        return resized_pil_image
+    
+    resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
+    return resized_images
 
 def convert_image_to_base64(pil_image):
     image_data = BytesIO()
@@ -67,7 +62,7 @@ def convert_image_to_base64(pil_image):
     base64_string = base64.b64encode(image_data.getvalue()).decode("utf-8")
     return base64_string
 
-resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
+
 base64_strings = list(map(lambda el : convert_image_to_base64(el),resized_images))
 payloads['base64'] = base64_strings
 print('payloads created')
@@ -206,3 +201,6 @@ if __name__ == "__main__":
 
     # Load images and payloads from the base directory.
     images, payloads, sample_image_urls = load_images_and_payloads("img")
+
+    # Resize and enhance images.
+    resized_images = resize_and_enhance_images(sample_image_urls)
