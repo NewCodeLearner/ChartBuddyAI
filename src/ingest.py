@@ -54,18 +54,17 @@ def resize_and_enhance_images(sample_image_urls):
     resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
     return resized_images
 
-def convert_image_to_base64(pil_image):
-    image_data = BytesIO()
-    # Convert the image.mode because the previous modes aren't supported for jpeg
-    # This will convert source images from .jpg to .png format into single .JPEG format.
-    pil_image.save(image_data,format = "JPEG")
-    base64_string = base64.b64encode(image_data.getvalue()).decode("utf-8")
-    return base64_string
+def convert_images_to_base64(pil_image):
+    def convert_image_to_base64(pil_image):
+        image_data = BytesIO()
+        # Convert the image.mode because the previous modes aren't supported for jpeg
+        # This will convert source images from .jpg to .png format into single .JPEG format.
+        pil_image.save(image_data,format = "JPEG")
+        base64_string = base64.b64encode(image_data.getvalue()).decode("utf-8")
+        return base64_string
+    base64_strings = list(map(lambda el : convert_image_to_base64(el),resized_images))
+    return base64_strings
 
-
-base64_strings = list(map(lambda el : convert_image_to_base64(el),resized_images))
-payloads['base64'] = base64_strings
-print('payloads created')
 
 #print(payloads)
 
@@ -204,3 +203,8 @@ if __name__ == "__main__":
 
     # Resize and enhance images.
     resized_images = resize_and_enhance_images(sample_image_urls)
+
+    # Convert enhanced images to Base64 strings and add to payload.
+    base64_strings=convert_image_to_base64(resized_images)
+    payloads['base64'] = base64_strings
+    print('base64 payloads created')
