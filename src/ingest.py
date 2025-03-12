@@ -115,17 +115,16 @@ def create_records(payloads, embeddings):
     ]
     return records
 
-def ingest_records_with_progress(records, batch_size=100):
+def ingest_records_with_progress(qclient,collection_name,records, batch_size=100):
     total_records = len(records)
     total_batches = math.ceil(total_records / batch_size)
     progress_bar = st.progress(0)
-    client = qclient
     
     for i in range(total_batches):
         start = i * batch_size
         end = start + batch_size
         batch_records = records[start:end]
-        response = client.upsert(
+        response = qclient.upsert(
             collection_name=collection_name,
             points=[
                 models.PointStruct(
@@ -143,29 +142,40 @@ def ingest_records_with_progress(records, batch_size=100):
     return response
 
 
-if __name__ == "__main__":
+def ingest_all_charts(batch_size=100):
+    """
+    Performs the full ingestion workflow:
+      - Loads images and payloads from the base directory.
+      - Resizes, enhances, and converts images to base64.
+      - Computes embeddings using CLIP.
+      - Creates Qdrant records.
+      - Creates (or verifies) the collection.
+      - Ingests all records in batches with a progress bar.
+      
+    Returns the response from the final upsert call.
+    """
     # Create Qdrant client and print its info for debugging.
     qclient = load_qdrant_client()
     print(qclient.info())
 
-    # Load images and payloads from the base directory.
+    # Step 1: Load images and payloads from the base directory.
     images, payloads, sample_image_urls = load_images_and_payloads("img")
 
-    # Resize and enhance images.
+    # Step 2: Resize and enhance images.
     resized_images = resize_and_enhance_images(sample_image_urls)
 
-    # Convert enhanced images to Base64 strings and add to payload.
+    # Step 3: Convert enhanced images to Base64 strings and add to payload.
     base64_strings=convert_images_to_base64(resized_images)
     payloads['base64'] = base64_strings
     print('base64 payloads created')
 
-    # Get embeddings using CLIP.
+    # Step 4: Get embeddings using CLIP.
     embeddings = load_clip_embeddings(resized_images)
 
-    # Create records combining payload and embeddings.
+    # Step 5: Create records combining payload and embeddings.
     records = create_records(payloads, embeddings)
 
-    # This is the collection that our vector and metadata will be stored.
+    # Step 6: This is the collection that our vector and metadata will be stored.
     collection_name = "stock_charts_images_clip_enhanced"
 
     # Check if collection already exists, if yes then pass else create new.
@@ -183,13 +193,17 @@ if __name__ == "__main__":
         )
     #    print(collection)
 
-    # 11. Upload all the records to our collection.
     # Ensure collection is indexed immediately
     qclient.update_collection(
         collection_name=collection_name,
         optimizers_config=models.OptimizersConfigDiff(indexing_threshold=0)  # Force immediate indexing
     )
 
-    response =ingest_records_with_progress(qclient, collection_name, records)
+    # Step 7: Ingest the records with progress reporting.
+    response =ingest_records_with_progress(qclient, collection_name, records,batch_size=batch_size)
     print(f"Qdrant upload response: {response}")
     print('Records Inserted in Qdrant DB')
+    return response
+
+if __name__ == "__main__":
+    ingest_all_charts()

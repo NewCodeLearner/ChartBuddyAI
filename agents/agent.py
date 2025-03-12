@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
 from agents.fetch_chart_agent import fetch_chart_image  # Import your function
-from src.ingest import ingest_records_with_progress
+from src.ingest import ingest_records_with_progress,ingest_all_charts
 
 # Tool to extract stock information from the user prompt.
 def get_stock_name(prompt):
@@ -100,5 +100,5 @@ with tab1:
 with tab2:
     st.header("Ingest All Charts")
     if st.button("Ingest All Charts"):
-        ingest_records_with_progress()  # This function ingests the chart stored in img folder locally
+        response = ingest_all_charts()  # This function ingests the chart stored in img folder locally
         st.write("Ingested chart image into Qdrant.")
