@@ -3,8 +3,12 @@ from transformers import AutoImageProcessor, ResNetForImageClassification
 from PIL import Image,ImageEnhance
 import base64
 import streamlit as st
-import io,time
+import io,time,os
 from qdrant_client import QdrantClient , models
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file (if present)
+load_dotenv()
 
 # Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
@@ -23,7 +27,7 @@ def load_clip_model():
 
 model, processor = load_clip_model()
 
-collection_name = "stock_charts_images_clip_enhanced"
+collection_name = os.getenv('COLLECTION_NAME')
 client = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
 
 def set_selected_record(new_record):

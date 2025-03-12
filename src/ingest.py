@@ -11,7 +11,11 @@ import os,math,base64
 from io import BytesIO
 from pandas import DataFrame
 from PIL import Image
+from dotenv import load_dotenv
 
+
+# Load environment variables from the .env file (if present)
+load_dotenv()
 
 # 1. Create Qdrant Client
 def load_qdrant_client():
@@ -51,7 +55,6 @@ def resize_and_enhance_images(sample_image_urls):
         resized_pil_image = pil_image.resize((512, 512))
         resized_pil_image = enhance_image(resized_pil_image)
         return resized_pil_image
-    
     resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
     return resized_images
 
@@ -63,7 +66,7 @@ def convert_images_to_base64(pil_image):
         pil_image.save(image_data,format = "JPEG")
         base64_string = base64.b64encode(image_data.getvalue()).decode("utf-8")
         return base64_string
-    base64_strings = list(map(lambda el : convert_image_to_base64(el),resized_images))
+    base64_strings = list(map(convert_image_to_base64,resized_images))
     return base64_strings
 
 
@@ -176,7 +179,7 @@ def ingest_all_charts(batch_size=100):
     records = create_records(payloads, embeddings)
 
     # Step 6: This is the collection that our vector and metadata will be stored.
-    collection_name = "stock_charts_images_clip_enhanced"
+    collection_name = os.getenv('COLLECTION_NAME')
 
     # Check if collection already exists, if yes then pass else create new.
     collection_exist = qclient.collection_exists(collection_name=collection_name)

@@ -2,12 +2,15 @@ import streamlit as st
 from qdrant_client import QdrantClient
 from io import BytesIO
 import base64
-import random
+import random,os
 from src.image_utils import upload_and_display_image, get_image_vector
+from dotenv import load_dotenv
 
+# Load environment variables from the .env file (if present)
+load_dotenv()
 
 # 1. Define the qdrant collection name that we created
-collection_name = "stock_charts_images_clip_enhanced"
+collection_name = os.getenv('COLLECTION_NAME')
 
 
 # Upload image and display it
