@@ -16,7 +16,7 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
 
     chrome_options = Options()
     # For debugging, consider disabling headless mode initially.
-    chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-features=DirectComposition")
@@ -46,6 +46,18 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
         chart_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
         
         print("Chart container step done")
+
+        # Directly execute JavaScript to add studies
+        driver.execute_script("""
+            if(window.tvWidget && window.tvWidget.activeChart) {
+                // 10 EMA
+                window.tvWidget.activeChart().createStudy('Moving Average', false, false, [10], null, { "plot.color": "orange" });
+                // 20 EMA
+                window.tvWidget.activeChart().createStudy('Moving Average', false, false, [20], null, { "plot.color": "blue" });
+                // 50 EMA
+                window.tvWidget.activeChart().createStudy('Moving Average', false, false, [50], null, { "plot.color": "green" });
+            }
+        """)
 
         wait = WebDriverWait(driver, 100)
         element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.chart-container.active')))
