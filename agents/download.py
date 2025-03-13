@@ -43,26 +43,18 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
         driver.switch_to.frame(iframe)
         
         # Ensure the chart is loaded.
-        chart_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
-        
+        # Wait for all relevant elements to ensure the chart is fully loaded
+        #tv_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".tradingview-container")))
+        gui_wrapper = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
+        #chart_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-container.active")))
+
         print("Chart container step done")
-
-        # Directly execute JavaScript to add studies
-        driver.execute_script("""
-            if(window.tvWidget && window.tvWidget.activeChart) {
-                // 10 EMA
-                window.tvWidget.activeChart().createStudy('Moving Average', false, false, [10], null, { "plot.color": "orange" });
-                // 20 EMA
-                window.tvWidget.activeChart().createStudy('Moving Average', false, false, [20], null, { "plot.color": "blue" });
-                // 50 EMA
-                window.tvWidget.activeChart().createStudy('Moving Average', false, false, [50], null, { "plot.color": "green" });
-            }
-        """)
-
         wait = WebDriverWait(driver, 100)
         element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.chart-container.active')))
         #element= wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 100)
+        print("printing after element step done")
+        
 
 
         file_suffix = time.strftime("%Y%m%d-%H%M%S")
