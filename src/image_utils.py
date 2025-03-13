@@ -28,7 +28,9 @@ def load_clip_model():
 model, processor = load_clip_model()
 
 collection_name = os.getenv('COLLECTION_NAME')
+
 client = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
+print("called from image_utils.py")
 
 def set_selected_record(new_record):
     st.session_state.selected_record = new_record

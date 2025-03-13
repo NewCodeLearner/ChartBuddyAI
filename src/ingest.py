@@ -58,7 +58,7 @@ def resize_and_enhance_images(sample_image_urls):
     resized_images = list(map(lambda img: resize_image(img),sample_image_urls))
     return resized_images
 
-def convert_images_to_base64(pil_image):
+def convert_images_to_base64(resized_images):
     def convert_image_to_base64(pil_image):
         image_data = BytesIO()
         # Convert the image.mode because the previous modes aren't supported for jpeg
@@ -174,9 +174,11 @@ def ingest_all_charts(batch_size=100):
 
     # Step 4: Get embeddings using CLIP.
     embeddings = load_clip_embeddings(resized_images)
+    print('embeddings created')
 
     # Step 5: Create records combining payload and embeddings.
     records = create_records(payloads, embeddings)
+    print('records created')
 
     # Step 6: This is the collection that our vector and metadata will be stored.
     collection_name = os.getenv('COLLECTION_NAME')
