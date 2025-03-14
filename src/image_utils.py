@@ -35,8 +35,11 @@ def get_clip_model():
         model, processor = load_clip_model()
     return model, processor
 
-client = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
-print("called from image_utils.py")
+def get_qdrant_client():
+    global client
+    if client is None:
+        client = QdrantClient(host='localhost', port=6333, prefix="qdrant", timeout=60)
+    return client
 
 def set_selected_record(new_record):
     st.session_state.selected_record = new_record
@@ -48,6 +51,7 @@ def set_selected_record(new_record):
 #    return outputs.logits
 
 def get_image_vector(image):
+    model, processor = get_clip_model()  # Load only when required
     inputs = processor(images=image,return_tensors="pt")
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)  # Get embeddings
@@ -122,7 +126,9 @@ def upload_and_display_image():
     return None
 
 def ingest_chart_image():
-        
+    
+    client = get_qdrant_client()  # Load Qdrant client only when needed
+
     # Wrap the stored image bytes into a BytesIO object
     img_buffer = io.BytesIO(st.session_state.downloaded_chart_image)
 
