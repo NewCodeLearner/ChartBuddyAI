@@ -16,7 +16,7 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
 
     chrome_options = Options()
     # For debugging, consider disabling headless mode initially.
-    #chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-features=DirectComposition")
@@ -45,7 +45,7 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
         # Ensure the chart is loaded.
         # Wait for all relevant elements to ensure the chart is fully loaded
         #tv_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".tradingview-container")))
-        gui_wrapper = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
+        #gui_wrapper = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
         #chart_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-container.active")))
 
         print("Chart container step done")
@@ -53,9 +53,6 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
         element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.chart-container.active')))
         #element= wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
         wait = WebDriverWait(driver, 100)
-        print("printing after element step done")
-        
-
 
         file_suffix = time.strftime("%Y%m%d-%H%M%S")
         img_file_name = f"{scid}_{exchange_id}_{file_suffix}.png"

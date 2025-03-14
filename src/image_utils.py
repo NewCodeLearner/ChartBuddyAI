@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 # Load environment variables from the .env file (if present)
 load_dotenv()
+collection_name = os.getenv('COLLECTION_NAME')
 
 # Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
@@ -25,9 +26,14 @@ from transformers import CLIPModel, CLIPProcessor
 def load_clip_model():
     return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-model, processor = load_clip_model()
+# Lazy Initialization
+model, processor, client = None, None, None
 
-collection_name = os.getenv('COLLECTION_NAME')
+def get_clip_model():
+    global model, processor
+    if model is None or processor is None:
+        model, processor = load_clip_model()
+    return model, processor
 
 client = QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
 print("called from image_utils.py")
