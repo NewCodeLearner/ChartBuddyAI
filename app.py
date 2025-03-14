@@ -4,7 +4,7 @@ st.set_page_config(page_title="ChartBuddyAI", layout="wide")# Expands content to
 from qdrant_client import QdrantClient
 from io import BytesIO
 import base64
-from src.image_utils import upload_and_display_image, get_image_vector
+#from src.image_utils import upload_and_display_image, get_image_vector
 
 
 

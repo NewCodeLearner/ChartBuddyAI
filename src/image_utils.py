@@ -13,7 +13,7 @@ collection_name = os.getenv('COLLECTION_NAME')
 
 # Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
-from transformers import AutoImageProcessor, ResNetForImageClassification
+#from transformers import AutoImageProcessor, ResNetForImageClassification
 
 #commenting resnet model to use CLIP model
 #processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
@@ -29,11 +29,14 @@ def load_clip_model():
 # Lazy Initialization
 model, processor, client = None, None, None
 
-def get_clip_model():
-    global model, processor
-    if model is None or processor is None:
-        model, processor = load_clip_model()
-    return model, processor
+print('before clip model load')
+model, processor = load_clip_model()
+
+#def get_clip_model():
+#    global model, processor
+#    if model is None or processor is None:
+#        model, processor = load_clip_model()
+#    return model, processor
 
 def get_qdrant_client():
     global client
@@ -51,7 +54,7 @@ def set_selected_record(new_record):
 #    return outputs.logits
 
 def get_image_vector(image):
-    model, processor = get_clip_model()  # Load only when required
+    #model, processor = get_clip_model()  # Load only when required
     inputs = processor(images=image,return_tensors="pt")
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)  # Get embeddings
@@ -81,6 +84,8 @@ def enhance_image(pil_image, upscale_factor=2, sharpness_factor=2.0, contrast_fa
 
 # Streamlit component for uploading and displaying an image.
 def upload_and_display_image():
+
+    client = get_qdrant_client()  # Load Qdrant client only when needed
     uploaded_file = st.file_uploader("Upload a chart image", type=["png","jpg","jpeg"])
 
     if uploaded_file:
@@ -130,7 +135,8 @@ def ingest_chart_image():
     client = get_qdrant_client()  # Load Qdrant client only when needed
 
     # Wrap the stored image bytes into a BytesIO object
-    img_buffer = io.BytesIO(st.session_state.downloaded_chart_image)
+    if 'downloaded_chart_image' in st.session_state:
+        img_buffer = io.BytesIO(st.session_state.downloaded_chart_image)
 
     # Get the vector embedding from the image using your CLIP or similar model.
     # Convert BytesIO to PIL Image
