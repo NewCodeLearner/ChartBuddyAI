@@ -5,7 +5,7 @@ from qdrant_client import QdrantClient,models
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
 from qdrant_client.models import VectorParams,Distance
-from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
+from src.image_utils import enhance_image
 import streamlit as st
 import os,math,base64
 from io import BytesIO
