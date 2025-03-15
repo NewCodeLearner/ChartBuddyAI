@@ -79,52 +79,52 @@ def enhance_image(pil_image, upscale_factor=2, sharpness_factor=2.0, contrast_fa
     
 
 # Streamlit component for uploading and displaying an image.
-#def upload_and_display_image():
-#
-#    #client = get_qdrant_client()  # Load Qdrant client only when needed
-#    uploaded_file = st.file_uploader("Upload a chart image", type=["png","jpg","jpeg"])
-#
-#    if uploaded_file:
-#        uploaded_image = Image.open(uploaded_file).convert("RGB")
-#        st.image(uploaded_image,caption="Uploaded Image",use_container_width=True)
-#
-#        # Store uploaded image in session state
-#        if "uploaded_image" not in st.session_state:
-#            st.session_state.uploaded_image = uploaded_image
-#
-#        if st.button("🔍 Show Similar Charts", key="search_uploaded"):
-#            with st.spinner("Searching for similar charts..."):
-#              # Ensure image vector is generated only once
-#                st.session_state.uploaded_image_vector = get_image_vector(uploaded_image)
-#
-#            # Search Qdrant for similar images
-#            search_results = client.search(
-#                collection_name=collection_name,
-#                query_vector=st.session_state.uploaded_image_vector,
-#                limit=5
-#            )
-#
-#            # Store results in session state to persist across reruns
-#            st.session_state.uploaded_search_results = search_results
-#
-#    # ----------------- DISPLAY SEARCH RESULTS -----------------
-#    if "uploaded_search_results" in st.session_state:
-#        st.subheader("🔍 Similar Chart Images")
-#        cols = st.columns(3)
-#
-#        for idx, result in enumerate(st.session_state.uploaded_search_results):
-#            col_idx = idx % 3
-#            # Retrieve image from DB
-#            image_bytes_str = result.payload["base64"]  
-#
-#            # Decode the base64 string into bytes , Image.open() expects a byte object 
-#            image_bytes = base64.b64decode(image_bytes_str)
-#            
-#            # Convert back to image
-#            image = Image.open(io.BytesIO(image_bytes))  
-#            with cols[col_idx]:
-#                st.image(image, caption=f"Match {idx+1}", use_container_width=True)
-#    return None
+def upload_and_display_image():
+
+    #client = get_qdrant_client()  # Load Qdrant client only when needed
+    uploaded_file = st.file_uploader("Upload a chart image", type=["png","jpg","jpeg"])
+
+    if uploaded_file:
+        uploaded_image = Image.open(uploaded_file).convert("RGB")
+        st.image(uploaded_image,caption="Uploaded Image",use_container_width=True)
+
+        # Store uploaded image in session state
+        if "uploaded_image" not in st.session_state:
+            st.session_state.uploaded_image = uploaded_image
+
+        if st.button("🔍 Show Similar Charts", key="search_uploaded"):
+            with st.spinner("Searching for similar charts..."):
+              # Ensure image vector is generated only once
+                st.session_state.uploaded_image_vector = get_image_vector(uploaded_image)
+
+            # Search Qdrant for similar images
+            search_results = client.search(
+                collection_name=collection_name,
+                query_vector=st.session_state.uploaded_image_vector,
+                limit=5
+            )
+
+            # Store results in session state to persist across reruns
+            st.session_state.uploaded_search_results = search_results
+
+    # ----------------- DISPLAY SEARCH RESULTS -----------------
+    if "uploaded_search_results" in st.session_state:
+        st.subheader("🔍 Similar Chart Images")
+        cols = st.columns(3)
+
+        for idx, result in enumerate(st.session_state.uploaded_search_results):
+            col_idx = idx % 3
+            # Retrieve image from DB
+            image_bytes_str = result.payload["base64"]  
+
+            # Decode the base64 string into bytes , Image.open() expects a byte object 
+            image_bytes = base64.b64decode(image_bytes_str)
+            
+            # Convert back to image
+            image = Image.open(io.BytesIO(image_bytes))  
+            with cols[col_idx]:
+                st.image(image, caption=f"Match {idx+1}", use_container_width=True)
+    return None
 
 def ingest_chart_image():
     

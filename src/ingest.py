@@ -121,6 +121,9 @@ def ingest_records_with_progress(qclient,collection_name,records, batch_size=100
     total_batches = math.ceil(total_records / batch_size)
     progress_bar = st.progress(0)
     
+    # Get the current number of points in the collection
+    current_count = qclient.count(collection_name=collection_name).count
+
     for i in range(total_batches):
         start = i * batch_size
         end = start + batch_size
@@ -129,7 +132,7 @@ def ingest_records_with_progress(qclient,collection_name,records, batch_size=100
             collection_name=collection_name,
             points=[
                 models.PointStruct(
-                    id=record.id,
+                    id=record.id + current_count,  # Offset new IDs by current count
                     vector=record.vector,
                     payload=record.payload
                 )
@@ -180,6 +183,7 @@ def ingest_all_charts(batch_size=100):
 
     # Step 6: This is the collection that our vector and metadata will be stored.
     collection_name = os.getenv('COLLECTION_NAME')
+    print('print ', collection_name)
 
     # Check if collection already exists, if yes then pass else create new.
     collection_exist = qclient.collection_exists(collection_name=collection_name)
