@@ -5,7 +5,9 @@ from qdrant_client import QdrantClient
 from io import BytesIO
 import base64
 #from src.image_utils import upload_and_display_image, get_image_vector
+from dotenv import load_dotenv
 
+load_dotenv(override=True)
 
 
 pages = {

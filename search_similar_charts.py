@@ -1,13 +1,96 @@
 import streamlit as st
 from qdrant_client import QdrantClient
-from io import BytesIO
+import io
 import base64
 import random,os
-from src.image_utils import upload_and_display_image, get_image_vector
-from dotenv import load_dotenv
+from PIL import Image,ImageEnhance
+#from src.image_utils import get_image_vector
+import torch
+from transformers import CLIPModel, CLIPProcessor
 
-# Load environment variables from the .env file (if present)
-load_dotenv()
+
+@st.cache_resource
+def load_clip_model():
+    return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+# Lazy Initialization
+#model, processor, client = None, None, None
+#model =CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+#
+
+print('before clip model load')
+model, processor = load_clip_model()
+
+#def get_image_vector():
+#    pass
+
+def get_image_vector(image):
+    #processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+    #model, processor = get_clip_model()  # Load only when required
+    inputs = processor(images=image,return_tensors="pt")
+    with torch.no_grad():
+        image_features = model.get_image_features(**inputs)  # Get embeddings
+    return image_features.cpu().numpy().flatten().tolist()  # Convert to list of floats
+
+
+@st.cache_resource
+def get_client():
+    # Uncomment below if using Qdrant managed cloud server to host DB.
+#    return QdrantClient(
+#        url = st.secrets.get("qdrant_db_url"),
+#        api_key = st.secrets.get("qdrant_api_key")
+#    )
+
+    # To use the locally setup Qdrant DB using Docker.
+    return QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
+
+
+def upload_and_display_image():
+    client = get_client()  # Load Qdrant client only when needed
+    uploaded_file = st.file_uploader("Upload a chart image", type=["png","jpg","jpeg"])
+
+    if uploaded_file:
+        uploaded_image = Image.open(uploaded_file).convert("RGB")
+        st.image(uploaded_image,caption="Uploaded Image",use_container_width=True)
+
+        # Store uploaded image in session state
+        if "uploaded_image" not in st.session_state:
+            st.session_state.uploaded_image = uploaded_image
+
+        if st.button("🔍 Show Similar Charts", key="search_uploaded"):
+            with st.spinner("Searching for similar charts..."):
+              # Ensure image vector is generated only once
+                st.session_state.uploaded_image_vector = get_image_vector(uploaded_image)
+
+            # Search Qdrant for similar images
+            search_results = client.search(
+                collection_name=collection_name,
+                query_vector=st.session_state.uploaded_image_vector,
+                limit=5
+            )
+
+            # Store results in session state to persist across reruns
+            st.session_state.uploaded_search_results = search_results
+
+    # ----------------- DISPLAY SEARCH RESULTS -----------------
+    if "uploaded_search_results" in st.session_state:
+        st.subheader("🔍 Similar Chart Images")
+        cols = st.columns(3)
+
+        for idx, result in enumerate(st.session_state.uploaded_search_results):
+            col_idx = idx % 3
+            # Retrieve image from DB
+            image_bytes_str = result.payload["base64"]  
+
+            # Decode the base64 string into bytes , Image.open() expects a byte object 
+            image_bytes = base64.b64decode(image_bytes_str)
+            
+            # Convert back to image
+            image = Image.open(io.BytesIO(image_bytes))  
+            with cols[col_idx]:
+                st.image(image, caption=f"Match {idx+1}", use_container_width=True)
+    return None
+
 
 # 1. Define the qdrant collection name that we created
 collection_name = os.getenv('COLLECTION_NAME')
@@ -27,16 +110,7 @@ def set_selected_record(new_record):
     st.session_state.selected_chart_image = get_bytes_from_base64(new_record.payload["base64"])
 
 # 4. This decorator will cache the qdrant client rather than creating new one each time app is refreshed.
-@st.cache_resource
-def get_client():
-    # Uncomment below if using Qdrant managed cloud server to host DB.
-#    return QdrantClient(
-#        url = st.secrets.get("qdrant_db_url"),
-#        api_key = st.secrets.get("qdrant_api_key")
-#    )
 
-    # To use the locally setup Qdrant DB using Docker.
-    return QdrantClient(host ='localhost',port=6333,prefix="qdrant",timeout=60)
 
 # 5. When the app first starts, lets show the user sample images.
 def get_initial_records():
@@ -109,7 +183,7 @@ def get_similar_records():
 # 7. Define a convenience function to convert base64 back into bytes
 #    that can be used by Steamlit to render images.
 def get_bytes_from_base64(base64_string):
-    return BytesIO(base64.b64decode(base64_string))
+    return io.BytesIO(base64.b64decode(base64_string))
 
 # 8. Get the records. This function will be re-called multiple times 
 #    throughout the lifecycle of our app. We fetch the original record
