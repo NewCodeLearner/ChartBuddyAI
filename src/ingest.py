@@ -130,7 +130,9 @@ def create_records(qclient,payloads, embeddings,collection_name):
             payload = payload_dicts[idx],
             vector = list(map(float, embeddings[idx]))  # Force float conversion
         )
-        for idx,_ in enumerate(payload_dicts)
+        for idx,record in enumerate(payload_dicts)
+        if record['image_url'] not in existing_image_urls
+            and record['base64'] not in existing_base64_hashes
     ]
     return records
 
@@ -141,27 +143,37 @@ def ingest_records_with_progress(qclient,collection_name,records, batch_size=100
     
     # Get the current number of points in the collection
     current_count = qclient.count(collection_name=collection_name).count
-
+    response = None  # Initialize response before the loop
+    
     for i in range(total_batches):
         start = i * batch_size
         end = start + batch_size
         batch_records = records[start:end]
-        response = qclient.upsert(
-            collection_name=collection_name,
-            points=[
-                models.PointStruct(
-                    id=record.id + current_count,  # Offset new IDs by current count
-                    vector=record.vector,
-                    payload=record.payload
-                )
-                for record in batch_records
-            ]
-        )
+        if batch_records:
+            response = qclient.upsert(
+                collection_name=collection_name,
+                points=[
+                    models.PointStruct(
+                        id=record.id + current_count,  # Offset new IDs by current count
+                        vector=record.vector,
+                        payload=record.payload
+                    )
+                    for record in batch_records
+                ]
+            )
+            print(f"Inserted {len(batch_records)} new images.")
+        else:
+            print("No new records to insert — all images are already in Qdrant.")
+        
         # Update progress: progress is a value between 0 and 1.
         progress_bar.progress((i + 1) / total_batches)
-        
-    st.success("Ingestion complete!")
-    return response
+       
+    if response:
+        st.success(f"Ingestion complete! Inserted {len(records)} new images.")
+    else:
+        st.warning("No new images were added to the database.")
+
+
 
 
 def ingest_all_charts(batch_size=100):
@@ -196,13 +208,12 @@ def ingest_all_charts(batch_size=100):
     print('embeddings created')
 
     # Step 5: Create records combining payload and embeddings.
-    records = create_records(qclient,payloads, embeddings)
+    collection_name = os.getenv('COLLECTION_NAME')
+    print('print ', collection_name)
+    records = create_records(qclient,payloads, embeddings,collection_name)
     print('records created')
 
     # Step 6: This is the collection that our vector and metadata will be stored.
-    collection_name = os.getenv('COLLECTION_NAME')
-    print('print ', collection_name)
-
     # Check if collection already exists, if yes then pass else create new.
     collection_exist = qclient.collection_exists(collection_name=collection_name)
 

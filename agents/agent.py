@@ -101,4 +101,3 @@ with tab2:
     st.header("Ingest All Charts")
     if st.button("Ingest All Charts"):
         response = ingest_all_charts()  # This function ingests the chart stored in img folder locally
-        st.write("Ingested chart image into Qdrant.")
