@@ -100,9 +100,27 @@ def load_clip_embeddings(resized_images):
 # 9. The Metadata must be uploaded as an array of objects so
 # convert the dataframe to an array of objects before continuing.
 
-def create_records(payloads, embeddings):
+def create_records(qclient,payloads, embeddings,collection_name):
     payload_dicts = payloads.to_dict(orient = "records")
     #print(payload_dicts)
+
+    # Fetch existing image URLs or base64 strings from Qdrant
+    existing_image_urls = set(
+    point.payload.get("image_url")
+    for point in qclient.scroll(
+        collection_name=collection_name,
+        scroll_filter=models.Filter(must=[]),  # Empty filter to get all points
+        limit=10000  # Set based on your dataset size
+    )[0]
+    )
+    existing_base64_hashes = set(
+    point.payload.get("base64")
+    for point in qclient.scroll(
+        collection_name=collection_name,
+        scroll_filter=models.Filter(must=[]),
+        limit=10_000
+    )[0]
+    )
 
     # 10. Create the record. This is the payload (metadata) and the vector embeddings
     # side by side. Because we have two arrays of data
@@ -178,7 +196,7 @@ def ingest_all_charts(batch_size=100):
     print('embeddings created')
 
     # Step 5: Create records combining payload and embeddings.
-    records = create_records(payloads, embeddings)
+    records = create_records(qclient,payloads, embeddings)
     print('records created')
 
     # Step 6: This is the collection that our vector and metadata will be stored.
