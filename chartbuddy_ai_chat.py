@@ -20,8 +20,8 @@ st.markdown("---")
 
 # Define model details
 models = {
-    "llama3-70b-8192": {
-        "name": "LLaMA3-70b-Instruct",
+    "llama3.2-11b-vision": {
+        "name": "llama3.2-11b-vision",
         "tokens": 8192,
         "developer": "Meta",
     },
@@ -38,6 +38,37 @@ models = {
     "gemma-7b-it": {"name": "Gemma-7b-it", "tokens": 8192, "developer": "Google"},
 }
 
+
+
+# Define Llama response function
+def get_llama_response(prompt):
+            GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+            client = Groq(api_key=GROQ_API_KEY)
+
+            # Groq completion using Groq API Request: Call the chat.completions API endpoint.
+            chat_completion = client.chat.completions.create(
+                messages =[
+                    {
+                        "role":"user",
+                        "content":[
+                            {"type":"text", "text" : user_message},
+                            {
+                                "type":"image_url",
+                                #we'll need to first encode our image to a base64 format string before passing it as the image_url in our API request
+                                "image_url":{
+                                    "url" : f"data:image/jpeg;base64,{base64.b64encode(st.session_state.selected_chart_image.read()).decode('utf-8')}"
+                                }
+
+                            }
+                        ]
+                    }
+                ],
+                model="llama-3.2-11b-vision-preview",
+            )
+            return chat_completion.choices[0].message.content
+
+
+
 # Layout for model selection and max_tokens slider
 col1, col2 = st.columns(2)
 
@@ -49,6 +80,8 @@ with col1:
         format_func=lambda x: models[x]["name"],
         index=0,  # Default to the first model in the list
     ) 
+    # Display instructions
+    st.info(f"You have selected **{model_option}** for your chat interactions.")
 
 # Initialize chat history in session state if it doesn't exist
 if 'chat_history' not in st.session_state:
@@ -75,10 +108,10 @@ with col2:
                 "role": "user",
                 "content": user_message
             })
-    
+
             # Build the conversation history for the API
             conversation = []
-    
+
             # If an image is selected, add it to the conversation.
             # Here, we add the image as part of the first message.
             if 'selected_chart_image' in st.session_state:
@@ -93,53 +126,33 @@ with col2:
                 })
                 # Reset the file pointer so the image can be used/displayed again.
                 st.session_state.selected_chart_image.seek(0)
-            
+
             # Append all text messages from chat history
             for msg in st.session_state.chat_history:
                 conversation.append({
                     "role": msg["role"],
                     "content": msg["content"]
                 })
-    
+
             # For debugging: print the conversation payload
             st.write("Conversation being sent:", conversation)
-            
+
             # Call your API here (Ollama, Groq, etc.) to generate a response.
             # For this example, we'll simulate a response.
             #simulated_response = f"Simulated response to: {user_message}"
-    
+
             # Create Groq client
             load_dotenv()  # This loads variables from .env into the environment
-            GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-            client = Groq(api_key=GROQ_API_KEY)
-            
-            # Groq completion using Groq API Request: Call the chat.completions API endpoint.
-            chat_completion = client.chat.completions.create(
-                messages =[
-                    {
-                        "role":"user",
-                        "content":[
-                            {"type":"text", "text" : user_message},
-                            {
-                                "type":"image_url",
-                                #we'll need to first encode our image to a base64 format string before passing it as the image_url in our API request
-                                "image_url":{
-                                    "url" : f"data:image/jpeg;base64,{base64.b64encode(st.session_state.selected_chart_image.read()).decode('utf-8')}"
-                                }
-    
-                            }
-                        ]
-                    }
-                ],
-                model="llama-3.2-11b-vision-preview",
-            )
+            if model_option == "LLaMA 3.2 (Vision)":
+                response = get_llama_response(user_message)
             
             # Append AI's response to chat history
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": chat_completion.choices[0].message.content
+                #"content": chat_completion.choices[0].message.content
+                "content": response
             })
-            
+
             # Clear the input box (optional) and refresh the page to show updated chat history.
             st.rerun()
 
