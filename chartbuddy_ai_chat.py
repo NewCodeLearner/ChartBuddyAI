@@ -41,7 +41,7 @@ models = {
 
 
 # Define Llama response function
-def get_llama_response(prompt):
+def get_llama_response(user_message):
             GROQ_API_KEY = os.getenv("GROQ_API_KEY")
             client = Groq(api_key=GROQ_API_KEY)
 
@@ -97,9 +97,9 @@ with col2:
         else:
             st.markdown(f"**AI:** {message['content']}")
 
+
     # User input for new message
     user_message = st.text_input("Enter your message", key="chat_input")
-
 
     if st.button("Send"):
         if user_message:
@@ -143,16 +143,19 @@ with col2:
 
             # Create Groq client
             load_dotenv()  # This loads variables from .env into the environment
-            if model_option == "LLaMA 3.2 (Vision)":
+            if model_option == "llama3.2-11b-vision":
                 response = get_llama_response(user_message)
             
             # Append AI's response to chat history
             st.session_state.chat_history.append({
-                "role": "assistant",
-                #"content": chat_completion.choices[0].message.content
-                "content": response
-            })
+                   "role": "assistant",
+                    #"content": chat_completion.choices[0].message.content
+                    "content": response
+             })
 
             # Clear the input box (optional) and refresh the page to show updated chat history.
+                    # Remove the key from session state to clear the input
+            if "user_message" in st.session_state:
+                del st.session_state["user_message"]
             st.rerun()
 
