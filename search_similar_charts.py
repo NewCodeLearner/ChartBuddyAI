@@ -19,14 +19,14 @@ def load_clip_model():
 #
 
 print('before clip model load')
-model, processor = load_clip_model()
+#model, processor = load_clip_model()
 
 #def get_image_vector():
 #    pass
 
 def get_image_vector(image):
     #processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-    #model, processor = get_clip_model()  # Load only when required
+    model, processor = load_clip_model()  # Load only when required
     inputs = processor(images=image,return_tensors="pt")
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)  # Get embeddings

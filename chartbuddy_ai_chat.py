@@ -135,7 +135,7 @@ with col2:
                 })
 
             # For debugging: print the conversation payload
-            st.write("Conversation being sent:", conversation)
+            #st.write("Conversation being sent:", conversation)
 
             # Call your API here (Ollama, Groq, etc.) to generate a response.
             # For this example, we'll simulate a response.
