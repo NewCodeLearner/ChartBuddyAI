@@ -3,8 +3,7 @@ from qdrant_client import QdrantClient
 import io
 import base64
 import random,os
-from PIL import Image,ImageEnhance
-#from src.image_utils import get_image_vector
+from PIL import Image
 import torch
 from transformers import CLIPModel, CLIPProcessor
 
@@ -13,19 +12,11 @@ from transformers import CLIPModel, CLIPProcessor
 def load_clip_model():
     return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-# Lazy Initialization
-#model, processor, client = None, None, None
-#model =CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-#
 
 print('before clip model load')
 #model, processor = load_clip_model()
 
-#def get_image_vector():
-#    pass
-
 def get_image_vector(image):
-    #processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     model, processor = load_clip_model()  # Load only when required
     inputs = processor(images=image,return_tensors="pt")
     with torch.no_grad():
@@ -109,8 +100,6 @@ def set_selected_record(new_record):
     # Also store the image bytes so the chat page can display the selected chart.
     st.session_state.selected_chart_image = get_bytes_from_base64(new_record.payload["base64"])
 
-# 4. This decorator will cache the qdrant client rather than creating new one each time app is refreshed.
-
 
 # 5. When the app first starts, lets show the user sample images.
 def get_initial_records():
@@ -150,21 +139,13 @@ def get_vector_by_id(client, collection_name, record_id):
 def get_similar_records():
     client = get_client()
 
-    #Commenting the recommend API to use query_points API
-    #if st.session_state.selected_record is not None:
-    #    return client.recommend(
-    #    collection_name = collection_name,
-    #    positive =  [st.session_state.selected_record.id],
-    #    limit =12
-    #)
-    
+   
     # Use query_points for Search
     if st.session_state.selected_record is not None:
         record_id = st.session_state.selected_record.id
         print(f"Searching for similar charts to record ID: {record_id}")  
 
         vector = get_vector_by_id(client, collection_name, record_id)
-        #print(vector)
 
         if vector:
             results = client.query_points(
@@ -173,8 +154,6 @@ def get_similar_records():
                 with_payload=True,
                 limit=13
             )
-            #print(f'Results from query_points: {results}')
-            #print("Type of results:", type(results))
             return results.points
         else:
             st.warning("Vector not found for selected record.")
@@ -208,8 +187,6 @@ column = st.columns(3)
 # 11. Iterate over all the fetched records from DB
 #     and render a preview of each image using base64 string.
 
-#print(f'Results before enumerate: {records}')
-
 # Save the ID of the base search image for filtering
 # Only set base_id if a selected_record exists
 base_record = st.session_state.get("selected_record")
@@ -219,7 +196,6 @@ base_id = base_record.id if base_record is not None else None
 for idx, record in enumerate(records):
     col_idx = idx % 3
     image_bytes = get_bytes_from_base64(record.payload['base64'])
-    #print(image_bytes)
 
     # Skip the base image if its id matches the query image id
     # If a base image is selected and its ID matches the current record, skip it.

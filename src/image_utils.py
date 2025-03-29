@@ -29,13 +29,13 @@ def load_clip_model():
 model, processor, client = None, None, None
 
 print('before clip model load')
-model, processor = load_clip_model()
+#model, processor = load_clip_model()
 
-#def get_clip_model():
-#    global model, processor
-#    if model is None or processor is None:
-#        model, processor = load_clip_model()
-#    return model, processor
+def get_clip_model():
+    global model, processor
+    if model is None or processor is None:
+        model, processor = load_clip_model()
+    return model, processor
 
 client = QdrantClient(host='localhost', port=6333, prefix="qdrant", timeout=60)
 
@@ -50,7 +50,7 @@ def set_selected_record(new_record):
 #    return outputs.logits
 
 def get_image_vector(image):
-    #model, processor = get_clip_model()  # Load only when required
+    model, processor = get_clip_model()  # Load only when required
     inputs = processor(images=image,return_tensors="pt")
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)  # Get embeddings
