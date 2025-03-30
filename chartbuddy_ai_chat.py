@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 import requests
 
 # Set up page configuration
-#st.set_page_config(page_title="ChartBuddy AI Chat", layout="wide")
 st.title("ChartBuddy AI Chat")
 
 # Display the selected or uploaded chart image if available.
@@ -31,7 +30,7 @@ models = {
         "tokens": 8192,
         "developer": "Meta",
     },
-    "Gemini-1.5-Pro": {"name": "Gemini-1.5-pro", "tokens": 8192, "developer": "Google"},
+    "Gemini-1.5-Pro": {"name": "Gemini-1.5-Pro", "tokens": 8192, "developer": "Google"},
 }
 
 
@@ -144,16 +143,13 @@ with col2:
             # For debugging: print the conversation payload
             #st.write("Conversation being sent:", conversation)
 
-            # Call your API here (Ollama, Groq, etc.) to generate a response.
-            # For this example, we'll simulate a response.
-            #simulated_response = f"Simulated response to: {user_message}"
-
             # Create Groq client
             load_dotenv()  # This loads variables from .env into the environment
             if model_option == "llama3.2-11b-vision":
                 response = get_llama_response(user_message)
-            elif model_option =="Gemini-1.5.-Pro":
+            elif model_option =="Gemini-1.5-Pro":
                 response = get_gemini_response(user_message)
+                response = "Called from Gemini"
             
             # Append AI's response to chat history
             st.session_state.chat_history.append({
@@ -163,7 +159,7 @@ with col2:
              })
 
             # Clear the input box (optional) and refresh the page to show updated chat history.
-                    # Remove the key from session state to clear the input
+            # Remove the key from session state to clear the input
             if "user_message" in st.session_state:
                 del st.session_state["user_message"]
             st.rerun()

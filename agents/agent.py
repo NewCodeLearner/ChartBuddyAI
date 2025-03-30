@@ -2,12 +2,11 @@ import streamlit as st
 import base64
 from PIL import Image
 import requests
-import os,re,io
+import re,io
 from dotenv import load_dotenv
-from groq import Groq
-from src.image_utils import upload_and_display_image, get_image_vector,ingest_chart_image,enhance_image
+from src.image_utils import ingest_chart_image,enhance_image
 from agents.fetch_chart_agent import fetch_chart_image  # Import your function
-from src.ingest import ingest_records_with_progress,ingest_all_charts
+from src.ingest import ingest_all_charts
 
 # Tool to extract stock information from the user prompt.
 def get_stock_name(prompt):

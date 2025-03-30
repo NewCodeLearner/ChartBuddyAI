@@ -131,7 +131,6 @@ def get_vector_by_id(client, collection_name, record_id):
         with_vectors = True
     )
 
-    #print(response)
     if response[0]:  # Ensure data is found
         return response[0].vector
     return None

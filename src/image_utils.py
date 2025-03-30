@@ -1,5 +1,4 @@
 import os
-#from transformers import AutoImageProcessor, ResNetForImageClassification
 from PIL import Image,ImageEnhance
 import base64
 import streamlit as st
@@ -14,12 +13,6 @@ collection_name = os.getenv('COLLECTION_NAME')
 
 # Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
-#from transformers import AutoImageProcessor, ResNetForImageClassification
-
-#commenting resnet model to use CLIP model
-#processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
-#model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
-
 #Use Streamlit caching so it doesn’t reload the model every time:
 @st.cache_resource
 def load_clip_model():
@@ -44,11 +37,6 @@ def set_selected_record(new_record):
     st.session_state.selected_record = new_record
 
 # Converts an image to an embedding using image model
-#def get_image_vector(image):
-#    inputs = processor(images=image,return_tensors="pt")
-#    outputs = model(**inputs)
-#    return outputs.logits
-
 def get_image_vector(image):
     model, processor = get_clip_model()  # Load only when required
     inputs = processor(images=image,return_tensors="pt")
