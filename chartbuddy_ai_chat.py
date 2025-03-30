@@ -3,6 +3,7 @@ from groq import Groq
 import base64
 import os
 from dotenv import load_dotenv
+import requests
 
 # Set up page configuration
 #st.set_page_config(page_title="ChartBuddy AI Chat", layout="wide")
@@ -30,12 +31,7 @@ models = {
         "tokens": 8192,
         "developer": "Meta",
     },
-    "mixtral-8x7b-32768": {
-        "name": "Mixtral-8x7b-Instruct-v0.1",
-        "tokens": 32768,
-        "developer": "Mistral",
-    },
-    "gemma-7b-it": {"name": "Gemma-7b-it", "tokens": 8192, "developer": "Google"},
+    "Gemini-1.5-Pro": {"name": "Gemini-1.5-pro", "tokens": 8192, "developer": "Google"},
 }
 
 
@@ -66,6 +62,17 @@ def get_llama_response(user_message):
                 model="llama-3.2-11b-vision-preview",
             )
             return chat_completion.choices[0].message.content
+
+# Define Gemini response function
+def get_gemini_response(prompt):
+    GEMINI_API_URL = os.getenv("GROQ_API_KEY")
+    GEMINI_API_KEY = os.getenv("GROQ_API_KEY")
+    headers = {"Content-Type": "application/json"}
+    params = {"key": GEMINI_API_KEY}
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+
+    response = requests.post(GEMINI_API_URL, headers=headers, params=params, json=payload)
+    return response.json().get("candidates", [{}])[0].get("content", "Error: No response.")
 
 
 
@@ -145,6 +152,8 @@ with col2:
             load_dotenv()  # This loads variables from .env into the environment
             if model_option == "llama3.2-11b-vision":
                 response = get_llama_response(user_message)
+            elif model_option =="Gemini-1.5.-Pro":
+                response = get_gemini_response(user_message)
             
             # Append AI's response to chat history
             st.session_state.chat_history.append({
