@@ -33,7 +33,15 @@ models = {
     "Gemini-1.5-Pro": {"name": "Gemini-1.5-Pro", "tokens": 8192, "developer": "Google"},
 }
 
-
+# Define a system prompt that tells the model its role.
+SYSTEM_PROMPT = (
+    "You are ChartBuddy, an expert assistant in stock chart analysis. "
+    "Your role is to analyze stock charts, identify candlestick patterns, and provide "
+    "detailed, actionable insights based on the chart data. Answer the user's questions "
+    "in a clear, concise, and informative manner."
+    "The stock name is located at the top left corner of the chart."""
+    "if You cannot identify the stock name respond with stock name not readable."
+)
 
 # Define Llama response function
 def get_llama_response(user_message):
@@ -43,6 +51,7 @@ def get_llama_response(user_message):
             # Groq completion using Groq API Request: Call the chat.completions API endpoint.
             chat_completion = client.chat.completions.create(
                 messages =[
+                    {"role": "system", "content": SYSTEM_PROMPT},
                     {
                         "role":"user",
                         "content":[
@@ -68,6 +77,10 @@ def get_gemini_response(prompt):
     GEMINI_API_KEY = os.getenv("GROQ_API_KEY")
     headers = {"Content-Type": "application/json"}
     params = {"key": GEMINI_API_KEY}
+
+        # Incorporate the system prompt into the payload.
+    prompt = SYSTEM_PROMPT + "\nUser: " + user_message
+  
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
 
     response = requests.post(GEMINI_API_URL, headers=headers, params=params, json=payload)
@@ -116,7 +129,8 @@ with col2:
             })
 
             # Build the conversation history for the API
-            conversation = []
+            # Start with the system prompt.
+            conversation = [{"role": "system", "content": SYSTEM_PROMPT}]
 
             # If an image is selected, add it to the conversation.
             # Here, we add the image as part of the first message.
