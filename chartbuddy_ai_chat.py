@@ -40,33 +40,59 @@ SYSTEM_PROMPT = (
     "detailed, actionable insights based on the chart data. Answer the user's questions "
     "in a clear, concise, and informative manner."
     "The stock name is located at the top left corner of the chart."""
-    "if You cannot identify the stock name respond with stock name not readable."
+    "If You cannot identify the stock name respond with stock name not readable."
 )
+
+# Define the centralized message preparation.
+def prepare_messages(user_message: str) -> list:
+    """
+    Prepare the messages payload for LLM APIs based on whether an image is present.
+    
+    Returns:
+        list: A list of message dictionaries.
+    """
+    messages = []
+            
+    # If an image is selected, add it to the conversation.
+    # Here, we add the image as part of the first message.
+    if 'selected_chart_image' in st.session_state:
+        # Read image bytes, convert to base64 and build a data URL.
+        image_bytes = st.session_state.selected_chart_image.read()
+        base64_image = base64.b64encode(image_bytes).decode('utf-8')
+        image_data_url = f"data:image/jpeg;base64,{base64_image}"
+
+        # Merge the system prompt into the user message when an image is present.
+        combined_text = SYSTEM_PROMPT + "\nUser: " + user_message
+
+        # Optionally, add an image message at the beginning of the conversation.
+        messages.append({
+            "role": "user",
+            "content": [
+                {"type": "text", "text": combined_text},
+                {"type": "image_url", "image_url": {"url": image_data_url}}
+                ]
+        })
+        # Reset the file pointer so the image can be used/displayed again.
+        st.session_state.selected_chart_image.seek(0)
+    else:
+        # If no image is present, include system and user messages separately.
+        messages.append({"role": "system", "content": SYSTEM_PROMPT})
+        messages.append({"role": "user", "content": user_message})
+    return messages
+
+
 
 # Define Llama response function
 def get_llama_response(user_message):
             GROQ_API_KEY = os.getenv("GROQ_API_KEY")
             client = Groq(api_key=GROQ_API_KEY)
 
+            # Prepare the messages payload.
+            messages = prepare_messages(user_message)
+
             # Groq completion using Groq API Request: Call the chat.completions API endpoint.
             chat_completion = client.chat.completions.create(
-                messages =[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {
-                        "role":"user",
-                        "content":[
-                            {"type":"text", "text" : user_message},
-                            {
-                                "type":"image_url",
-                                #we'll need to first encode our image to a base64 format string before passing it as the image_url in our API request
-                                "image_url":{
-                                    "url" : f"data:image/jpeg;base64,{base64.b64encode(st.session_state.selected_chart_image.read()).decode('utf-8')}"
-                                }
-
-                            }
-                        ]
-                    }
-                ],
+                messages = messages,
                 model="llama-3.2-11b-vision-preview",
             )
             return chat_completion.choices[0].message.content
@@ -128,31 +154,10 @@ with col2:
                 "content": user_message
             })
 
-            # Build the conversation history for the API
-            # Start with the system prompt.
-            conversation = [{"role": "system", "content": SYSTEM_PROMPT}]
+            # For debugging, can inspect the prepared messages.
+            messages = prepare_messages(user_message)
+            st.write("Prepared messages:", messages)
 
-            # If an image is selected, add it to the conversation.
-            # Here, we add the image as part of the first message.
-            if 'selected_chart_image' in st.session_state:
-                # Read image bytes, convert to base64 and build a data URL.
-                image_bytes = st.session_state.selected_chart_image.read()
-                base64_image = base64.b64encode(image_bytes).decode('utf-8')
-                image_data_url = f"data:image/jpeg;base64,{base64_image}"
-                # Optionally, add an image message at the beginning of the conversation.
-                conversation.append({
-                    "role": "user",
-                    "content": [{"type": "image_url", "image_url": {"url": image_data_url}}]
-                })
-                # Reset the file pointer so the image can be used/displayed again.
-                st.session_state.selected_chart_image.seek(0)
-
-            # Append all text messages from chat history
-            for msg in st.session_state.chat_history:
-                conversation.append({
-                    "role": msg["role"],
-                    "content": msg["content"]
-                })
 
             # For debugging: print the conversation payload
             #st.write("Conversation being sent:", conversation)
