@@ -147,9 +147,6 @@ with col2:
         user_message = st.text_input("Enter your message", key="chat_input")
         submit_button = st.form_submit_button(label="Send")
 
-    # User input for new message
-    #user_message = st.text_input("Enter your message", key="chat_input")
-
    
         if submit_button and user_message:
             # Append user's message to chat history
@@ -163,9 +160,6 @@ with col2:
             #st.write("Prepared messages:", messages)
 
 
-            # For debugging: print the conversation payload
-            #st.write("Conversation being sent:", conversation)
-
             # Create Groq client
             load_dotenv()  # This loads variables from .env into the environment
             if model_option == "llama3.2-11b-vision":
@@ -177,13 +171,9 @@ with col2:
             # Append AI's response to chat history
             st.session_state.chat_history.append({
                    "role": "assistant",
-                    #"content": chat_completion.choices[0].message.content
                     "content": response
              })
 
             # Clear the input box (optional) and refresh the page to show updated chat history.
-            # Remove the key from session state to clear the input
-            #if "chat_input" in st.session_state:
-            #    del st.session_state["chat_input"]
             st.rerun()
 
