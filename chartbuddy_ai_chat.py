@@ -99,7 +99,7 @@ def get_llama_response(user_message):
 
 # Define Gemini response function
 def get_gemini_response(prompt):
-    GEMINI_API_URL = os.getenv("GROQ_API_KEY")
+    GEMINI_API_URL = os.getenv("GROQ_API_URL")
     GEMINI_API_KEY = os.getenv("GROQ_API_KEY")
     headers = {"Content-Type": "application/json"}
     params = {"key": GEMINI_API_KEY}
@@ -142,12 +142,16 @@ with col2:
         else:
             st.markdown(f"**AI:** {message['content']}")
 
+    # Use a form to handle the chat input so that it resets after submission.
+    with st.form(key="chat_form", clear_on_submit=True):
+        user_message = st.text_input("Enter your message", key="chat_input")
+        submit_button = st.form_submit_button(label="Send")
 
     # User input for new message
-    user_message = st.text_input("Enter your message", key="chat_input")
+    #user_message = st.text_input("Enter your message", key="chat_input")
 
-    if st.button("Send"):
-        if user_message:
+   
+        if submit_button and user_message:
             # Append user's message to chat history
             st.session_state.chat_history.append({
                 "role": "user",
@@ -156,7 +160,7 @@ with col2:
 
             # For debugging, can inspect the prepared messages.
             messages = prepare_messages(user_message)
-            st.write("Prepared messages:", messages)
+            #st.write("Prepared messages:", messages)
 
 
             # For debugging: print the conversation payload
@@ -179,7 +183,7 @@ with col2:
 
             # Clear the input box (optional) and refresh the page to show updated chat history.
             # Remove the key from session state to clear the input
-            if "user_message" in st.session_state:
-                del st.session_state["user_message"]
+            #if "chat_input" in st.session_state:
+            #    del st.session_state["chat_input"]
             st.rerun()
 
