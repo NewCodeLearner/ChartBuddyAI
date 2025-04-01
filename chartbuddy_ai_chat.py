@@ -8,13 +8,7 @@ import requests
 # Set up page configuration
 st.title("ChartBuddy AI Chat")
 
-# Display the selected or uploaded chart image if available.
-# (Assumes that your "Search Similar Charts" page stores the image in st.session_state)
-if 'selected_chart_image' in st.session_state:
-    st.header("Selected Chart")
-    st.image(st.session_state.selected_chart_image, use_container_width=True)
-else:
-    st.info("Please upload or select a chart from the 'Search Similar Charts' page.")
+
 
 st.markdown("---")
 
@@ -115,18 +109,25 @@ def get_gemini_response(prompt):
 
 
 # Layout for model selection and max_tokens slider
-col1, col2 = st.columns(2)
+model_option = st.selectbox(
+        "Choose a model:",
+    options=list(models.keys()),
+    format_func=lambda x: models[x]["name"],
+    index=0,  # Default to the first model in the list
+) 
+# Display instructions
+st.info(f"You have selected **{model_option}** for your chat interactions.")
 
+col1, col2 = st.columns([2,2])
 
 with col1:
-    model_option = st.selectbox(
-        "Choose a model:",
-        options=list(models.keys()),
-        format_func=lambda x: models[x]["name"],
-        index=0,  # Default to the first model in the list
-    ) 
-    # Display instructions
-    st.info(f"You have selected **{model_option}** for your chat interactions.")
+    # Display the selected or uploaded chart image if available.
+    # (Assumes that your "Search Similar Charts" page stores the image in st.session_state)
+    st.header("Selected Chart")
+    if 'selected_chart_image' in st.session_state:
+        st.image(st.session_state.selected_chart_image, use_container_width=True)
+    else:
+        st.info("Please upload or select a chart from the 'Search Similar Charts' page.")
 
 # Initialize chat history in session state if it doesn't exist
 if 'chat_history' not in st.session_state:
@@ -143,37 +144,42 @@ with col2:
             st.markdown(f"**AI:** {message['content']}")
 
     # Use a form to handle the chat input so that it resets after submission.
-    with st.form(key="chat_form", clear_on_submit=True):
-        user_message = st.text_input("Enter your message", key="chat_input")
-        submit_button = st.form_submit_button(label="Send")
+    #with st.form(key="chat_form", clear_on_submit=True):
+    #    user_message = st.text_input("Enter your message", key="chat_input")
+    #    submit_button = st.form_submit_button(label="Send")
+        
+    # Display chat history in a read-only text area to reduce scrolling
+    chat_display = ""
+    for message in st.session_state.chat_history:
+        chat_display += f"**{message['role'].capitalize()}**: {message['content']}\n\n"
+    
+    #st.text_area("Conversation", value=chat_display, height=300, disabled=True)  # Read-only chat
 
+    # Use chat_input instead of text_input for auto-clear functionality
+    user_message = st.chat_input("Ask ChartBuddy...")
    
-        if submit_button and user_message:
-            # Append user's message to chat history
-            st.session_state.chat_history.append({
-                "role": "user",
-                "content": user_message
+    if user_message:
+           # Append user's message to chat history
+           st.session_state.chat_history.append({
+               "role": "user",
+               "content": user_message
+           })
+           # For debugging, can inspect the prepared messages.
+           messages = prepare_messages(user_message)
+           #st.write("Prepared messages:", messages)
+           # Create Groq client
+           load_dotenv()  # This loads variables from .env into the environment
+           if model_option == "llama3.2-11b-vision":
+               response = get_llama_response(user_message)
+           elif model_option =="Gemini-1.5-Pro":
+               response = get_gemini_response(user_message)
+               response = "Called from Gemini"
+           
+           # Append AI's response to chat history
+           st.session_state.chat_history.append({
+                  "role": "assistant",
+                   "content": response
             })
-
-            # For debugging, can inspect the prepared messages.
-            messages = prepare_messages(user_message)
-            #st.write("Prepared messages:", messages)
-
-
-            # Create Groq client
-            load_dotenv()  # This loads variables from .env into the environment
-            if model_option == "llama3.2-11b-vision":
-                response = get_llama_response(user_message)
-            elif model_option =="Gemini-1.5-Pro":
-                response = get_gemini_response(user_message)
-                response = "Called from Gemini"
-            
-            # Append AI's response to chat history
-            st.session_state.chat_history.append({
-                   "role": "assistant",
-                    "content": response
-             })
-
-            # Clear the input box (optional) and refresh the page to show updated chat history.
-            st.rerun()
+           # Clear the input box (optional) and refresh the page to show updated chat history.
+           st.rerun()
 
