@@ -1,6 +1,5 @@
 #Code file to import documents,images into Qdrant database
 from langchain_community.vectorstores import Qdrant
-from transformers import ViTImageProcessor, ViTModel
 from qdrant_client import QdrantClient,models
 from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
@@ -28,18 +27,16 @@ def load_images_and_payloads(base_directory="img"):
 
     #concat image urls with base directory to construct full dir path.
     sample_image_urls = list(map(lambda item : f"{base_directory}/{item}",all_image_urls))
-    #print(sample_image_urls[:5])
 
 
     # 3. Create a dataframe to store the image's metadata
     payloads = DataFrame.from_records({"image_url": sample_image_urls})
     payloads["type"] = "stockchart"
-    #print(payloads)
+
 
     # 4. Create PIL (Python Imaging Library) image from each of the local URLs.
     # PIL provides a wide range of functions for image processing, such as resizing, cropping, rotating, and applying filters.
     images =  list(map(lambda imgurl : Image.open(imgurl),payloads['image_url']))
-    #print(images)
     return images,payloads,sample_image_urls
 
 
@@ -70,21 +67,6 @@ def convert_images_to_base64(resized_images):
 
 #6. Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
-#commenting resnet model to use CLIP model
-#from transformers import AutoImageProcessor, ResNetForImageClassification
-
-#processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
-#model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
-
-#inputs = processor(
-#    resized_images,
-#    return_tensors = "pt",
-#)
-
-#outputs = model(**inputs)
-#embeddings = outputs.logits
-#print(embeddings)
-
 #code changes for the CLIP model usage
 def load_clip_model():
     return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")

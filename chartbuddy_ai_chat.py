@@ -129,6 +129,7 @@ with col1:
     else:
         st.info("Please upload or select a chart from the 'Search Similar Charts' page.")
 
+
 # Initialize chat history in session state if it doesn't exist
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
@@ -143,17 +144,24 @@ with col2:
         else:
             st.markdown(f"**AI:** {message['content']}")
 
-    # Use a form to handle the chat input so that it resets after submission.
-    #with st.form(key="chat_form", clear_on_submit=True):
-    #    user_message = st.text_input("Enter your message", key="chat_input")
-    #    submit_button = st.form_submit_button(label="Send")
-        
+       
     # Display chat history in a read-only text area to reduce scrolling
     chat_display = ""
-    for message in st.session_state.chat_history:
-        chat_display += f"**{message['role'].capitalize()}**: {message['content']}\n\n"
+    for i, message in enumerate(st.session_state.chat_history):
+        role = "**You**" if message["role"] == "user" else "**ChartBuddy**"
+        content = message['content']
+        # Highlight the latest AI response with a background color
+        if i == len(st.session_state.chat_history) - 1 and message["role"] == "assistant":
+            chat_display += f"""
+            <div style="background-color:#f0f8ff; padding:10px; border-radius:5px; margin-bottom:5px;">
+                <b>{role}:</b> {content}
+            </div>
+            """
+        else:
+            chat_display += f"<b>{role}:</b> {content}<br><br>"
     
-    #st.text_area("Conversation", value=chat_display, height=300, disabled=True)  # Read-only chat
+    # Render chat history with Markdown and HTML styling
+    #st.markdown(chat_display, unsafe_allow_html=True)
 
     # Use chat_input instead of text_input for auto-clear functionality
     user_message = st.chat_input("Ask ChartBuddy...")
@@ -166,7 +174,6 @@ with col2:
            })
            # For debugging, can inspect the prepared messages.
            messages = prepare_messages(user_message)
-           #st.write("Prepared messages:", messages)
            # Create Groq client
            load_dotenv()  # This loads variables from .env into the environment
            if model_option == "llama3.2-11b-vision":
