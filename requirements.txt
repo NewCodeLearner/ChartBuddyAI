@@ -9,3 +9,9 @@ streamlit
 selenium
 groq
 python-dotenv
+llama-index
+llama-index-core
+pymupdf
+llama_index.llms.groq
+llama_index.embeddings.huggingface
+llama_index.readers.json
