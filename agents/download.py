@@ -38,16 +38,9 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
         driver.get(url)
         
         # Switch to the iframe if needed.
-        #iframe = wait.until(lambda d: d.find_element_by_css_selector("iframe[id^='tradingview_']"))
         iframe = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[id^='tradingview_']")))
         driver.switch_to.frame(iframe)
         
-        # Ensure the chart is loaded.
-        # Wait for all relevant elements to ensure the chart is fully loaded
-        #tv_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".tradingview-container")))
-        #gui_wrapper = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-gui-wrapper")))
-        #chart_container = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".chart-container.active")))
-
         print("Chart container step done")
         wait = WebDriverWait(driver, 100)
         element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.chart-container.active')))
@@ -59,35 +52,14 @@ def trigger_download_with_keys(scid, exchange_id, ex='NSE'):
         screenshot_path = os.path.join(download_dir, img_file_name)
 
         chart_png = element.screenshot_as_png
-        #element.screenshot(screenshot_path)
 
         with open(screenshot_path, "wb") as f:
             f.write(chart_png)
         
 
 
-        #Image.open(img)
-
-        # Click on the body or chart area to ensure it has focus.
-        #driver.find_element_by_tag_name("body").click()
-        #print("body clicked")
-
-        # Simulate the key combination Ctrl+Alt+S
- #       actions = ActionChains(driver)
- #       actions.key_down(Keys.CONTROL).key_down(Keys.ALT).send_keys("s").key_up(Keys.ALT).key_up(Keys.CONTROL).perform()
- #       print("actions clicked")
- #       # Wait for the download to start (monitor the downloads folder)
         time.sleep(5)  # adjust sleep as necessary
         
-        # List files in download directory
-#       files = os.listdir(download_dir)
-#       if files:
-#           downloaded_file = os.path.join(download_dir, files[0])
-#           print(f"Downloaded file: {downloaded_file}")
-#           return downloaded_file
-#       else:
-#           print("No file downloaded.")
-#           return None
 
     except Exception as e:
         print("Error triggering download:", e)
