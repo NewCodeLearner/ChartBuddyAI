@@ -23,12 +23,10 @@ with tab1:
     if st.button("Run Agent - Fetch Chart"):
         #result = get_stock_name(user_input)
         response = get_stock_name(user_input)
-        print(type(response))
         print(response)
-        exchange_id = json.loads(response)
+        response_dict = json.loads(response)
+        exchange_id = response_dict['symbol']  #Response :  {'action': 'show chart', 'symbol': 'CENTRALBK'}
         print('exchange_id ' , exchange_id)
-        exchange_id = exchange_id['symbol']  #Response :  {'action': 'show chart', 'symbol': 'CENTRALBK'}
-
         result = fetch_chart_image(exchange_id)
         image_bytes = base64.b64decode(result)
         downloaded_image = Image.open(io.BytesIO(image_bytes))

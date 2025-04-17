@@ -53,9 +53,9 @@ you need to:
 Your response should return the action and the company NSE CODE clearly.
 
 Example input: 'show me the chart for Reliance'
-Example output: {'action': 'show chart', 'symbol': 'RELIANCE'}
+Example output: {"action": "show chart", "symbol": "RELIANCE"}
 Example input: 'show me the chart for Powergrid'
-Example output: {'action': 'show chart', 'symbol': 'POWERGRID'}
+Example output: {"action": "show chart", "symbol": "POWERGRID"}
 Use only the tools provided to answer questions and NOT your own memory.
 """
 

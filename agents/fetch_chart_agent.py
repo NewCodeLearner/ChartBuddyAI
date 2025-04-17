@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 import time
 
-def fetch_chart_image(scid, exchange_id, ex='NSE', screenshot_path='chart.png'):
+def fetch_chart_image(exchange_id, scid=None ,ex='NSE', screenshot_path='chart.png'):
     """
     Fetches a stock chart image from Moneycontrol for the given parameters.
     
