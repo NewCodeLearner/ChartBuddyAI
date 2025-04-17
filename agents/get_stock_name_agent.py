@@ -60,17 +60,31 @@ Use only the tools provided to answer questions and NOT your own memory.
 """
 
 stockname_tools =[stockname_tool]
-stock_name_agent = ReActAgent.from_tools(
-    tools = stockname_tools,
-    llm = Settings.llm,
-    verbose = True,
-    context = context
-)
+
+#Agent Creation:
+def create_stock_name_agent():
+    """
+    Function to create and return the stock name agent.
+    """
+    return ReActAgent.from_tools(
+        tools = stockname_tools,
+        llm = Settings.llm,
+        verbose = True,
+        context = context
+    )
+
+# The global agent instance (you can initialize it here)
+stock_name_agent = create_stock_name_agent()
+
+# Query handling interface
+def get_stock_name(user_query):
+    """
+    Pass a query to the agent and return the response.
+    """
+    response = stock_name_agent.query(user_query)  # Use the query method
+    return response.response
 
 
-#print("generate response!")
-response=stock_name_agent.chat("show me the chart of Aptus Value Housing")
-print("*******\n Response : ",response.response)
 
 #response=stock_name_agent.chat("show me the chart of Central Bank of India")
 #print("*******\n Response : ",response.response)
