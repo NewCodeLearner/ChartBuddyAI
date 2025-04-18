@@ -13,11 +13,16 @@ def load_clip_model():
     return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 
-print('before clip model load')
+model_path = "./model_path"  # Adjust if relative path changes
+print('Search simialr charts - before clip model load')
 #model, processor = load_clip_model()
 
 def get_image_vector(image):
-    model, processor = load_clip_model()  # Load only when required
+    #model, processor = load_clip_model()  # Load only when required
+
+    model = CLIPModel.from_pretrained(model_path)
+    processor = CLIPProcessor.from_pretrained(model_path)
+
     inputs = processor(images=image,return_tensors="pt")
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)  # Get embeddings
