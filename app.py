@@ -11,9 +11,9 @@ pages = {
         st.Page("chartbuddy_ai_chat.py", title="Chat with AI for Similar Charts")
 
     ],
-  #  "Resources": [
-   #     st.Page("agents/agent_new.py", title="Ingest New Charts")
-    #],
+    "Resources": [
+        st.Page("agents/agent_new.py", title="Ingest New Charts")
+        ],
 }
 
 pg = st.navigation(pages)

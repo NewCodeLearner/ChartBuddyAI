@@ -1,14 +1,10 @@
 import streamlit as st
-from groq import Groq
-import base64
 import os
 from dotenv import load_dotenv
-import requests
+
 
 # Set up page configuration
 st.title("ChartBuddy AI Chat")
-
-
 
 st.markdown("---")
 
@@ -45,6 +41,7 @@ def prepare_messages(user_message: str) -> list:
     Returns:
         list: A list of message dictionaries.
     """
+    import base64
     messages = []
             
     # If an image is selected, add it to the conversation.
@@ -78,6 +75,7 @@ def prepare_messages(user_message: str) -> list:
 
 # Define Llama response function
 def get_llama_response(user_message):
+            from groq import Groq
             GROQ_API_KEY = os.getenv("GROQ_API_KEY")
             client = Groq(api_key=GROQ_API_KEY)
 
@@ -93,6 +91,7 @@ def get_llama_response(user_message):
 
 # Define Gemini response function
 def get_gemini_response(prompt):
+    import requests
     GEMINI_API_URL = os.getenv("GROQ_API_URL")
     GEMINI_API_KEY = os.getenv("GROQ_API_KEY")
     headers = {"Content-Type": "application/json"}

@@ -1,11 +1,10 @@
-import os
+import os,io,time
 from PIL import Image,ImageEnhance
 import base64
 import streamlit as st
-import io,time
 from qdrant_client import QdrantClient , models
 import torch
-from transformers import CLIPModel, CLIPProcessor
+
 
 # Load environment variables from the .env file (if present)
 
@@ -16,12 +15,13 @@ collection_name = os.getenv('COLLECTION_NAME')
 #Use Streamlit caching so it doesn’t reload the model every time:
 @st.cache_resource
 def load_clip_model():
+    from transformers import CLIPModel, CLIPProcessor
     return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 # Lazy Initialization
 model, processor, client = None, None, None
 
-print('before clip model load')
+print('image-utils - before clip model load')
 #model, processor = load_clip_model()
 
 def get_clip_model():
