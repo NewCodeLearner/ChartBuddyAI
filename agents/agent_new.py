@@ -1,14 +1,8 @@
 import streamlit as st
 import base64
 from PIL import Image
-import requests
-import re,io
+import io
 from dotenv import load_dotenv
-from src.image_utils import ingest_chart_image,enhance_image
-from agents.fetch_chart_agent import fetch_chart_image  # Import your function
-from src.ingest import ingest_all_charts
-from agents.get_stock_name_agent import get_stock_name
-import json
 
 
 st.title("Ingest New Stock Charts")
@@ -21,6 +15,12 @@ with tab1:
     user_input = st.text_input("Enter your command (e.g., 'Show me the chart for ICICIBANK'):")
 
     if st.button("Run Agent - Fetch Chart"):
+        from src.image_utils import ingest_chart_image,enhance_image
+        from agents.fetch_chart_agent import fetch_chart_image  # Import your function
+        from src.ingest import ingest_all_charts
+        from agents.get_stock_name_agent import get_stock_name
+        import json
+        
         #result = get_stock_name(user_input)
         response = get_stock_name(user_input)
         print(response)

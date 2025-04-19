@@ -5,11 +5,14 @@ import base64
 import random,os
 from PIL import Image
 import torch
-from transformers import CLIPModel, CLIPProcessor
 
+
+
+st.write("App started")
 
 @st.cache_resource
 def load_clip_model():
+    from transformers import CLIPModel, CLIPProcessor
     return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 
