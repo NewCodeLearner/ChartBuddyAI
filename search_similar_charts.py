@@ -1,5 +1,4 @@
 import streamlit as st
-from qdrant_client import QdrantClient
 import io
 import base64
 import random,os
@@ -7,25 +6,23 @@ from PIL import Image
 import torch
 
 
-
 st.write("App started")
 
 @st.cache_resource
 def load_clip_model():
     from transformers import CLIPModel, CLIPProcessor
-    return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+    model = CLIPModel.from_pretrained(model_path)
+    processor = CLIPProcessor.from_pretrained(model_path)
+    return model,processor
+    #commented direct import from Huggingface
+    #return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 
 model_path = "./model_path"  # Adjust if relative path changes
-print('Search simialr charts - before clip model load')
-#model, processor = load_clip_model()
+print('Search similar charts - before clip model load')
 
 def get_image_vector(image):
-    #model, processor = load_clip_model()  # Load only when required
-
-    model = CLIPModel.from_pretrained(model_path)
-    processor = CLIPProcessor.from_pretrained(model_path)
-
+    model, processor = load_clip_model()  # Load only when required
     inputs = processor(images=image,return_tensors="pt")
     with torch.no_grad():
         image_features = model.get_image_features(**inputs)  # Get embeddings
@@ -34,6 +31,7 @@ def get_image_vector(image):
 
 @st.cache_resource
 def get_client():
+    from qdrant_client import QdrantClient
     # Uncomment below if using Qdrant managed cloud server to host DB.
 #    return QdrantClient(
 #        url = st.secrets.get("qdrant_db_url"),
