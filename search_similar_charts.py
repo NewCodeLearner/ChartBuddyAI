@@ -18,7 +18,7 @@ def load_clip_model():
     #return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 
-model_path = "./model_path"  # Adjust if relative path changes
+model_path = os.getenv('MODEL_PATH')  # Adjust if relative path changes
 print('Search similar charts - before clip model load')
 
 def get_image_vector(image):

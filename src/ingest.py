@@ -1,7 +1,6 @@
 #Code file to import documents,images into Qdrant database
 from langchain_community.vectorstores import Qdrant
 from qdrant_client import QdrantClient,models
-from transformers import CLIPModel, CLIPProcessor
 from qdrant_client.http.models import Vector
 from qdrant_client.models import VectorParams,Distance
 from src.image_utils import enhance_image
@@ -13,6 +12,8 @@ from PIL import Image
 from dotenv import load_dotenv
 
 
+
+model_path = os.getenv('MODEL_PATH')
 
 # 1. Create Qdrant Client
 def load_qdrant_client():
@@ -69,7 +70,11 @@ def convert_images_to_base64(resized_images):
 # all the images through it to create the embeddings.
 #code changes for the CLIP model usage
 def load_clip_model():
-    return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+    from transformers import CLIPModel, CLIPProcessor
+    model = CLIPModel.from_pretrained(model_path)
+    processor = CLIPProcessor.from_pretrained(model_path)
+    return model,processor
+    #return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 def load_clip_embeddings(resized_images):
     model, processor = load_clip_model()
