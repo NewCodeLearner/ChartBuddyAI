@@ -9,6 +9,8 @@ import torch
 # Load environment variables from the .env file (if present)
 
 collection_name = os.getenv('COLLECTION_NAME')
+model_path = os.getenv('MODEL_PATH')
+
 
 # Import the model and tokenizer then run 
 # all the images through it to create the embeddings.
@@ -16,7 +18,10 @@ collection_name = os.getenv('COLLECTION_NAME')
 @st.cache_resource
 def load_clip_model():
     from transformers import CLIPModel, CLIPProcessor
-    return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+    model = CLIPModel.from_pretrained(model_path)
+    processor = CLIPProcessor.from_pretrained(model_path)
+    return model,processor
+    #return CLIPModel.from_pretrained("openai/clip-vit-base-patch32"), CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
 # Lazy Initialization
 model, processor, client = None, None, None
