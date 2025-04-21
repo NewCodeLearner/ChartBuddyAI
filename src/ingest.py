@@ -1,9 +1,7 @@
 #Code file to import documents,images into Qdrant database
-from langchain_community.vectorstores import Qdrant
 from qdrant_client import QdrantClient,models
 from qdrant_client.http.models import Vector
 from qdrant_client.models import VectorParams,Distance
-from src.image_utils import enhance_image
 import streamlit as st
 import os,math,base64
 from io import BytesIO
@@ -45,6 +43,7 @@ def load_images_and_payloads(base_directory="img"):
 # 5. Create Base64 string representations to store alongside
 # metadata. This will allow us to preview the images.
 def resize_and_enhance_images(sample_image_urls):
+    from src.image_utils import enhance_image
     def resize_image(image_url):
         pil_image = Image.open(image_url)
         pil_image = pil_image.convert("RGB")
